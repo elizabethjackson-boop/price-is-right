@@ -1,0 +1,14 @@
+<% if players.any? %>
+  <div style="margin-bottom:12px;">
+    <div style="font-size:13px; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-bottom:12px"><%= players.count %> PLAYER<%= players.count != 1 ? "S" : "" %> JOINED</div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center;">
+      <% players.each do |player| %>
+        <div style="background:rgba(255,255,255,0.1); border-radius:20px; padding:6px 16px; font-size:15px; font-weight:600; color:rgba(255,255,255,0.85);">
+          <%= player.name %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <p style="font-size:15px; color:rgba(255,255,255,0.35); margin-bottom:12px;">Waiting for players to join...</p>
+<% end %>

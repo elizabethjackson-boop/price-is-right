@@ -1,0 +1,200 @@
+<% content_for :title, "The Price Is Right — #{@player.name}" %>
+
+<style>
+  .btn { background:#f59e0b; color:#1e3a5f; border:none; border-radius:12px; padding:16px 32px; font-size:18px; font-weight:700; cursor:pointer; width:100%; letter-spacing:0.5px; transition:background 0.2s; }
+  .btn:hover { background:#fbbf24; }
+  .btn.disabled { background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.4); cursor:default; }
+  .card { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:28px; }
+  .input-field { background:rgba(255,255,255,0.1); border:2px solid rgba(255,255,255,0.2); border-radius:12px; padding:16px 20px; color:white; font-size:20px; font-weight:600; width:100%; outline:none; box-sizing:border-box; text-align:center; }
+  .input-field::placeholder { color:rgba(255,255,255,0.35); }
+  .input-field:focus { border-color:#f59e0b; }
+  .progress-pip { width:32px; height:5px; border-radius:3px; transition:background 0.3s; }
+  .price-reveal-anim { text-align:center; margin:24px 0; transition:all 0.7s cubic-bezier(0.34,1.56,0.64,1); }
+  .anim-hidden { opacity:0; transform:scale(0.7); }
+  .anim-visible { opacity:1; transform:scale(1); }
+</style>
+
+<%# Subscribe to game channel for real-time updates %>
+<%= turbo_stream_from "game_#{@game.id}" %>
+
+<%# Invisible reload trigger — replaced by broadcast to reload the page %>
+<div id="game-reload-trigger"></div>
+
+<div style="display:flex; flex-direction:column; align-items:center; padding:20px 16px; width:100%; max-width:500px; margin:0 auto;" id="player-app"
+     data-controller="player-game"
+     data-player-game-game-id-value="<%= @game.id %>"
+     data-player-game-player-id-value="<%= @player.id %>"
+     data-player-game-game-state-value="<%= @game.state %>"
+     data-player-game-current-round-value="<%= @game.current_round %>"
+     data-player-game-total-rounds-value="<%= @game.total_rounds %>"
+     data-player-game-game-code-value="<%= @game.code %>"
+     data-player-game-token-value="<%= @player.token %>">
+
+  <% if @game.state == "waiting" %>
+    <%# ═══ WAITING FOR GAME TO START ═══ %>
+    <div style="text-align:center; margin:80px 0 40px">
+      <div style="font-size:13px; letter-spacing:4px; color:#f59e0b; font-weight:600; margin-bottom:12px">CLEVER REAL ESTATE PRESENTS</div>
+      <h1 style="font-size:40px; font-weight:800; line-height:1.1; color:white">THE PRICE IS RIGHT</h1>
+      <p style="font-size:18px; color:rgba(255,255,255,0.5); margin-top:8px">Real Estate Edition</p>
+    </div>
+
+    <div id="game-state-container">
+      <div class="card" style="text-align:center; max-width:500px; width:100%;">
+        <div style="font-size:36px; margin-bottom:12px">&#9201;</div>
+        <h2 style="font-size:20px; margin-bottom:8px; color:rgba(255,255,255,0.9)">Hey, <%= @player.name %>!</h2>
+        <p style="font-size:16px; color:rgba(255,255,255,0.5)">You're in! Waiting for the host to start the game...</p>
+        <div style="margin-top:20px; background:rgba(245,158,11,0.08); border-radius:10px; padding:12px; border:1px solid rgba(245,158,11,0.2);">
+          <p style="font-size:14px; color:rgba(255,255,255,0.6)">Game Code: <strong style="color:#f59e0b; letter-spacing:2px;"><%= @game.code %></strong></p>
+        </div>
+      </div>
+    </div>
+
+  <% elsif @game.state == "playing" %>
+    <%# ═══ GUESSING SCREEN ═══ %>
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:16px">
+      <span style="font-size:13px; letter-spacing:3px; color:#f59e0b; font-weight:600">ROUND <%= @game.current_round + 1 %> OF <%= @game.total_rounds %></span>
+      <div style="display:flex; gap:6px;">
+        <% @game.total_rounds.times do |i| %>
+          <div class="progress-pip" style="background:<%= i < @game.current_round ? '#10b981' : i == @game.current_round ? '#fbbf24' : 'rgba(255,255,255,0.15)' %>"></div>
+        <% end %>
+      </div>
+    </div>
+
+    <div id="game-state-container">
+      <div class="card" style="text-align:center; width:100%;">
+        <div style="font-size:48px; margin-bottom:12px">&#127968;</div>
+        <h2 style="font-size:22px; margin-bottom:6px; color:white;">Look at the host's screen!</h2>
+        <p style="font-size:15px; color:rgba(255,255,255,0.4); margin-bottom:24px;">Check out the listing, then enter your price guess below.</p>
+
+        <% if @guess %>
+          <%# Already guessed — show locked in state %>
+          <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); border-radius:12px; padding:20px;">
+            <div style="font-size:28px; margin-bottom:8px;">&#9989;</div>
+            <p style="font-size:17px; font-weight:600; color:rgba(255,255,255,0.8);">Guess locked in!</p>
+            <p style="font-size:24px; font-weight:700; color:#f59e0b; margin-top:4px;">$<%= number_with_delimiter(@guess.amount) %></p>
+            <p style="font-size:14px; color:rgba(255,255,255,0.4); margin-top:8px;">Wait for the host to reveal the price...</p>
+          </div>
+        <% else %>
+          <%= form_with url: player_guess_path(@game.code, @player.token), method: :post, id: "guess-form" do |f| %>
+            <div style="position:relative; margin-bottom:16px;">
+              <span style="position:absolute; left:20px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,0.4); font-size:32px; font-weight:700;">$</span>
+              <%= f.text_field :amount,
+                  placeholder: "0",
+                  class: "input-field",
+                  style: "font-size:32px; padding:20px 20px 20px 45px;",
+                  id: "guess-input",
+                  autocomplete: "off",
+                  data: { action: "input->player-game#formatAmount keydown.enter->player-game#submitGuess" } %>
+            </div>
+            <%= f.submit "LOCK IT IN", class: "btn" %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+  <% elsif @game.state == "revealing" %>
+    <%# ═══ REVEAL SCREEN ═══ %>
+    <% listing = @listing %>
+    <% guess = @guess %>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:16px">
+      <span style="font-size:13px; letter-spacing:3px; color:#f59e0b; font-weight:600">ROUND <%= @game.current_round + 1 %> OF <%= @game.total_rounds %></span>
+      <div style="display:flex; gap:6px;">
+        <% @game.total_rounds.times do |i| %>
+          <% if i < @game.current_round %>
+            <% prev_guess = @player.guesses.find_by(round: i) %>
+            <div class="progress-pip" style="background:<%= prev_guess&.result == 'lose' ? '#ef4444' : '#10b981' %>"></div>
+          <% elsif i == @game.current_round %>
+            <div class="progress-pip" style="background:#fbbf24"></div>
+          <% else %>
+            <div class="progress-pip" style="background:rgba(255,255,255,0.15)"></div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div id="game-state-container">
+      <div class="card" style="text-align:center; width:100%;">
+        <% actual_price = listing[:price] %>
+
+        <div class="price-reveal-anim anim-hidden" id="player-price-reveal">
+          <div style="font-size:12px; letter-spacing:3px; color:rgba(255,255,255,0.5); margin-bottom:4px;">THE ACTUAL PRICE</div>
+          <div style="font-size:48px; font-weight:800; color:#f59e0b;">$<%= number_with_delimiter(actual_price) %></div>
+        </div>
+
+        <script>
+          (function() {
+            var el = document.getElementById("player-price-reveal");
+            if (el) {
+              setTimeout(function() {
+                el.classList.remove("anim-hidden");
+                el.classList.add("anim-visible");
+              }, 100);
+            }
+          })();
+        </script>
+
+        <div id="result-card-area" style="margin-top:8px;">
+          <% if guess && guess.result %>
+            <%= render "result_card", guess: guess %>
+          <% elsif guess %>
+            <div style="padding:16px; color:rgba(255,255,255,0.5);">Results coming soon...</div>
+          <% else %>
+            <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:16px; color:rgba(255,255,255,0.4);">
+              <p>You didn't submit a guess for this round.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  <% elsif @game.state == "finished" %>
+    <%# ═══ FINAL SCORE SCREEN ═══ %>
+    <div style="text-align:center; margin:40px 0 28px; width:100%;">
+      <div style="font-size:56px; margin-bottom:12px;">&#127942;</div>
+      <h1 style="font-size:40px; font-weight:800; color:#f59e0b;">GAME OVER</h1>
+      <p style="font-size:18px; color:rgba(255,255,255,0.6); margin-top:8px;"><%= @player.name %>'s Results</p>
+    </div>
+
+    <div id="game-state-container">
+      <div class="card" style="width:100%;">
+        <h3 style="font-size:14px; margin-bottom:16px; letter-spacing:2px; color:rgba(255,255,255,0.4);">YOUR RESULTS</h3>
+
+        <% all_guesses = @player.guesses.order(:round) %>
+        <% all_guesses.each do |g| %>
+          <% listing = Game::LISTINGS[g.round] %>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+            <div style="width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; background:<%= g.result == 'lose' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.2)' %>; color:<%= g.result == 'lose' ? '#ef4444' : '#10b981' %>; flex-shrink:0;">
+              <%= g.round + 1 %>
+            </div>
+            <div style="flex:1; text-align:left;">
+              <div style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.8);">Round <%= g.round + 1 %></div>
+              <div style="font-size:12px; color:rgba(255,255,255,0.35);">$<%= number_with_delimiter(g.amount) %> vs $<%= number_with_delimiter(listing[:price]) %></div>
+            </div>
+            <% diff_color = g.result == "exact" ? "#f59e0b" : g.result == "lose" ? "#ef4444" : "#10b981" %>
+            <% diff_label = g.result == "exact" ? "Exact!" : g.result == "lose" ? "+$#{number_with_delimiter(g.diff.abs)} over" : "-$#{number_with_delimiter(g.diff.abs)} under" %>
+            <div style="font-size:13px; font-weight:600; color:<%= diff_color %>;"><%= diff_label %></div>
+          </div>
+        <% end %>
+
+        <div style="margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1);">
+          <div style="font-size:14px; color:rgba(255,255,255,0.4); letter-spacing:1px;">YOUR SCORE</div>
+          <div style="font-size:48px; font-weight:800; color:#f59e0b;"><%= @player.score %> / <%= @game.total_rounds %></div>
+          <div style="font-size:15px; color:rgba(255,255,255,0.5); margin-top:4px;">
+            <%= @player.score %> guess<%= @player.score != 1 ? "es" : "" %> without going over
+          </div>
+        </div>
+
+        <div style="margin-top:24px; padding:16px; background:rgba(245,158,11,0.08); border-radius:10px; border:1px solid rgba(245,158,11,0.2);">
+          <p style="font-size:14px; color:rgba(255,255,255,0.6);">Drop your score in the chat!</p>
+          <p style="font-size:18px; font-weight:700; color:white; margin-top:6px;"><%= @player.name %>: <%= @player.score %>/<%= @game.total_rounds %> &#127968;</p>
+        </div>
+
+        <div style="margin-top:20px;">
+          <%= link_to "PLAY AGAIN", new_game_path, style: "background:#f59e0b; color:#1e3a5f; border:none; border-radius:12px; padding:16px 32px; font-size:18px; font-weight:700; cursor:pointer; width:100%; letter-spacing:0.5px; display:block; text-align:center; text-decoration:none;" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+</div>

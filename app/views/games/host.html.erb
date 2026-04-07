@@ -1,0 +1,182 @@
+<% content_for :title, "The Price Is Right — Host Screen" %>
+<%= turbo_stream_from @game.channel_name %>
+
+<style>
+  .btn { background:#f59e0b; color:#1e3a5f; border:none; border-radius:12px; padding:16px 32px; font-size:18px; font-weight:700; cursor:pointer; width:100%; letter-spacing:0.5px; transition:background 0.2s; }
+  .btn:hover { background:#fbbf24; }
+  .card { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:28px; }
+  .listing-img { width:100%; height:400px; object-fit:cover; display:block; border-radius:16px 16px 0 0; }
+  .specs { display:flex; gap:20px; font-size:20px; color:rgba(255,255,255,0.6); flex-wrap:wrap; }
+  .specs .sep { color:rgba(255,255,255,0.2); }
+  .progress-pip { width:40px; height:6px; border-radius:3px; transition:background 0.3s; }
+  .hidden { display:none; }
+  .price-reveal-anim { text-align:center; margin:32px 0; transition:all 0.7s cubic-bezier(0.34,1.56,0.64,1); }
+  .price-hidden { opacity:0; transform:scale(0.7); }
+  .price-visible { opacity:1; transform:scale(1); }
+</style>
+
+<div style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); color:#f59e0b; font-size:11px; font-weight:700; letter-spacing:2px; padding:6px 14px; border-radius:20px; position:fixed; top:16px; right:16px; z-index:100;">HOST SCREEN</div>
+
+<div style="display:flex; flex-direction:column; align-items:center; padding:20px 16px; width:100%;">
+
+  <% if @game.state == "waiting" %>
+    <%# ═══ WELCOME SCREEN ═══ %>
+    <div style="text-align:center; margin:80px 0 40px">
+      <div style="font-size:14px; letter-spacing:4px; color:#f59e0b; font-weight:600; margin-bottom:12px">CLEVER REAL ESTATE PRESENTS</div>
+      <h1 style="font-size:56px; font-weight:800; line-height:1.1; color:white">THE PRICE IS RIGHT</h1>
+      <p style="font-size:24px; color:rgba(255,255,255,0.5); margin-top:10px">Real Estate Edition</p>
+    </div>
+
+    <div class="card" style="text-align:center; max-width:600px; width:100%; margin:0 auto">
+      <p style="font-size:18px; color:rgba(255,255,255,0.7); margin-bottom:4px">5 listings. Guess the price. Closest without going over wins.</p>
+      <p style="font-size:15px; color:rgba(255,255,255,0.4); margin-bottom:24px">Players — go to this URL and enter the code to join:</p>
+
+      <div style="background:rgba(0,0,0,0.3); border-radius:12px; padding:20px; margin-bottom:24px;">
+        <div style="font-size:13px; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-bottom:8px">JOIN CODE</div>
+        <div style="font-size:48px; font-weight:800; color:#f59e0b; letter-spacing:8px"><%= @game.code %></div>
+        <div style="font-size:14px; color:rgba(255,255,255,0.4); margin-top:8px">
+          Players go to: <strong style="color:rgba(255,255,255,0.7);">/play/<%= @game.code %></strong>
+        </div>
+      </div>
+
+      <%# Player list refreshed via turbo frame %>
+      <%= turbo_frame_tag "player_list" do %>
+        <%= render "player_list", players: @players %>
+      <% end %>
+
+      <%= form_with url: start_game_path(@game), method: :post, style: "margin-top:24px" do %>
+        <%= submit_tag "START ROUND 1", class: "btn" %>
+      <% end %>
+    </div>
+
+  <% elsif @game.state == "playing" %>
+    <%# ═══ LISTING SCREEN ═══ %>
+    <% listing = @listing %>
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:800px; margin-bottom:16px">
+      <span style="font-size:14px; letter-spacing:3px; color:#f59e0b; font-weight:600">ROUND <%= @game.current_round + 1 %> OF <%= @game.total_rounds %></span>
+      <div style="display:flex; gap:8px;">
+        <% @game.total_rounds.times do |i| %>
+          <div class="progress-pip" style="background:<%= i < @game.current_round ? '#f59e0b' : i == @game.current_round ? '#fbbf24' : 'rgba(255,255,255,0.15)' %>"></div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0; overflow:hidden; max-width:800px; width:100%;">
+      <img class="listing-img" src="<%= listing[:image] %>" alt="listing">
+      <div style="padding:24px 32px">
+        <h2 style="font-size:32px; margin-bottom:8px; font-weight:700"><%= listing[:address] %></h2>
+        <div class="specs">
+          <span><%= listing[:beds] %> Bed</span><span class="sep">|</span>
+          <span><%= listing[:baths] %> Bath</span><span class="sep">|</span>
+          <span><%= listing[:sqft] %> sqft</span><span class="sep">|</span>
+          <span>Built <%= listing[:year] %></span>
+        </div>
+        <p style="color:rgba(255,255,255,0.35); font-size:17px; margin-top:10px"><%= listing[:feature] %></p>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:20px; width:100%; max-width:800px;">
+      <p style="font-size:16px; color:rgba(255,255,255,0.4); margin-bottom:16px">Players are submitting their guesses now...</p>
+
+      <%# Show guess count — updated live via Turbo Stream when players submit %>
+      <%= turbo_frame_tag "guess_count" do %>
+        <p style="font-size:14px; color:rgba(255,255,255,0.3); margin-bottom:16px">
+          <% guesses_in = @game.guesses.where(round: @game.current_round).count %>
+          <%= guesses_in %> / <%= @game.players.count %> guesses received
+        </p>
+      <% end %>
+
+      <%= form_with url: reveal_game_path(@game), method: :post do %>
+        <%= submit_tag "REVEAL THE PRICE", class: "btn", style: "max-width:400px; display:block; margin:0 auto;" %>
+      <% end %>
+    </div>
+
+  <% elsif @game.state == "revealing" %>
+    <%# ═══ REVEAL SCREEN ═══ %>
+    <% listing = @listing %>
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:800px; margin-bottom:16px">
+      <span style="font-size:14px; letter-spacing:3px; color:#f59e0b; font-weight:600">ROUND <%= @game.current_round + 1 %> OF <%= @game.total_rounds %></span>
+      <div style="display:flex; gap:8px;">
+        <% @game.total_rounds.times do |i| %>
+          <div class="progress-pip" style="background:<%= i <= @game.current_round ? '#f59e0b' : 'rgba(255,255,255,0.15)' %>"></div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0; overflow:hidden; max-width:800px; width:100%;">
+      <img class="listing-img" src="<%= listing[:image] %>" alt="listing" style="height:280px;">
+      <div style="padding:20px 32px">
+        <h2 style="font-size:28px; margin-bottom:6px; font-weight:700"><%= listing[:address] %></h2>
+        <div class="specs" style="font-size:17px;">
+          <span><%= listing[:beds] %> Bed</span><span class="sep">|</span>
+          <span><%= listing[:baths] %> Bath</span><span class="sep">|</span>
+          <span><%= listing[:sqft] %> sqft</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="price-reveal-anim price-hidden" id="host-price-reveal" style="text-align:center; margin:32px 0; width:100%; max-width:800px;">
+      <div style="font-size:13px; letter-spacing:3px; color:rgba(255,255,255,0.5); margin-bottom:6px">THE ACTUAL PRICE</div>
+      <div style="font-size:64px; font-weight:800; color:#f59e0b">$<%= number_with_delimiter(listing[:price]) %></div>
+    </div>
+
+    <script>
+      (function() {
+        var el = document.getElementById("host-price-reveal");
+        if (el) {
+          setTimeout(function() {
+            el.classList.remove("price-hidden");
+            el.classList.add("price-visible");
+          }, 300);
+        }
+      })();
+    </script>
+
+    <%# Leaderboard %>
+    <div style="max-width:800px; width:100%; margin-bottom:20px;">
+      <%= turbo_frame_tag "leaderboard" do %>
+        <%= render "leaderboard", game: @game %>
+      <% end %>
+    </div>
+
+    <div style="text-align:center; width:100%; max-width:800px;">
+      <p style="font-size:16px; color:rgba(255,255,255,0.4); margin-bottom:16px">Players can see their own results on their screen!</p>
+      <%= form_with url: advance_game_path(@game), method: :post do %>
+        <%= submit_tag(@game.last_round? ? "SEE FINAL RESULTS" : "NEXT LISTING →", class: "btn", style: "max-width:400px; display:block; margin:0 auto;") %>
+      <% end %>
+    </div>
+
+  <% elsif @game.state == "finished" %>
+    <%# ═══ END SCREEN ═══ %>
+    <div style="text-align:center; margin:60px 0 32px; width:100%; max-width:800px;">
+      <div style="font-size:72px; margin-bottom:16px">&#127942;</div>
+      <h1 style="font-size:52px; font-weight:800; color:#f59e0b">GAME OVER</h1>
+      <p style="font-size:22px; color:rgba(255,255,255,0.5); margin-top:12px">Everyone drop your score in the chat!</p>
+    </div>
+
+    <div class="card" style="max-width:600px; width:100%; margin:0 auto;">
+      <h3 style="font-size:14px; margin-bottom:20px; letter-spacing:2px; color:rgba(255,255,255,0.4)">FINAL LEADERBOARD</h3>
+
+      <%= turbo_frame_tag "leaderboard" do %>
+        <%= render "leaderboard", game: @game %>
+      <% end %>
+
+      <h3 style="font-size:14px; margin:24px 0 16px; letter-spacing:2px; color:rgba(255,255,255,0.4)">THE 5 LISTINGS</h3>
+      <% Game::LISTINGS.each_with_index do |listing, i| %>
+        <div style="display:flex; align-items:center; gap:16px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.06)">
+          <div style="width:44px; height:44px; border-radius:50%; background:rgba(245,158,11,0.15); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; color:#f59e0b; flex-shrink:0;"><%= i + 1 %></div>
+          <div style="flex:1; text-align:left">
+            <div style="font-size:16px; font-weight:600; color:rgba(255,255,255,0.8)"><%= listing[:address].split(",")[0] %></div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.35)"><%= listing[:beds] %> bed · <%= listing[:baths] %> bath · <%= listing[:sqft] %> sqft</div>
+          </div>
+          <div style="font-size:20px; font-weight:700; color:#f59e0b">$<%= number_with_delimiter(listing[:price]) %></div>
+        </div>
+      <% end %>
+
+      <div style="margin-top:24px">
+        <%= link_to "PLAY AGAIN", new_game_path, style: "background:#f59e0b; color:#1e3a5f; border:none; border-radius:12px; padding:16px 32px; font-size:18px; font-weight:700; cursor:pointer; width:100%; letter-spacing:0.5px; display:block; text-align:center; text-decoration:none;" %>
+      </div>
+    </div>
+  <% end %>
+
+</div>

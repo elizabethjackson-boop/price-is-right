@@ -1,0 +1,23 @@
+<% content_for :title, "The Price Is Right — Host Setup" %>
+
+<div style="display:flex; flex-direction:column; align-items:center; padding:20px 16px; min-height:100vh;">
+  <div style="text-align:center; margin:80px 0 40px">
+    <div style="font-size:14px; letter-spacing:4px; color:#f59e0b; font-weight:600; margin-bottom:12px">CLEVER REAL ESTATE PRESENTS</div>
+    <h1 style="font-size:56px; font-weight:800; line-height:1.1; color:white">THE PRICE IS RIGHT</h1>
+    <p style="font-size:24px; color:rgba(255,255,255,0.5); margin-top:10px">Real Estate Edition</p>
+  </div>
+
+  <div style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:28px; max-width:600px; width:100%; text-align:center;">
+    <h2 style="font-size:22px; margin-bottom:8px; color:rgba(255,255,255,0.9)">Ready to host a game?</h2>
+    <p style="font-size:16px; color:rgba(255,255,255,0.5); margin-bottom:24px">5 listings. Guess the price. Closest without going over wins.</p>
+
+    <%= form_with url: games_path, method: :post do |f| %>
+      <%= f.submit "CREATE GAME",
+          style: "background:#f59e0b; color:#1e3a5f; border:none; border-radius:12px; padding:16px 32px; font-size:18px; font-weight:700; cursor:pointer; width:100%; letter-spacing:0.5px;" %>
+    <% end %>
+  </div>
+
+  <p style="color:rgba(255,255,255,0.3); font-size:13px; margin-top:24px; text-align:center">
+    A join code will be generated for players to enter on their devices.
+  </p>
+</div>
