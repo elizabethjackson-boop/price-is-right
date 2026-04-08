@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resources :games, only: [ :new, :create, :show ] do
     member do
       get  :host
+      get  :status
       post :start
       post :reveal
       post :advance

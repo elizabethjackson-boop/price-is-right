@@ -1,8 +1,8 @@
-<% sorted_players = game.players.order(score: :desc, created_at: :asc) %>
-<% if sorted_players.any? %>
+<% top_players = game.leaderboard(limit: 5) %>
+<% if top_players.any? %>
   <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:16px; margin-top:8px;">
-    <div style="font-size:12px; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-bottom:12px">LEADERBOARD</div>
-    <% sorted_players.each_with_index do |player, i| %>
+    <div style="font-size:12px; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-bottom:12px">TOP 5 LEADERBOARD</div>
+    <% top_players.each_with_index do |player, i| %>
       <div style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
         <div style="width:28px; height:28px; border-radius:50%; background:<%= i == 0 ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.08)' %>; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; color:<%= i == 0 ? '#f59e0b' : 'rgba(255,255,255,0.5)' %>; flex-shrink:0;">
           <%= i + 1 %>

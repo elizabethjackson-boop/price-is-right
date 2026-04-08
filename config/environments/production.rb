@@ -79,12 +79,9 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
-  # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  #
-  # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  # Allow all hosts (game is accessed via Render's domain)
+  config.hosts.clear
+
+  # Allow Action Cable from any origin (needed for remote WebSocket connections)
+  config.action_cable.disable_request_forgery_protection = true
 end

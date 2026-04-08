@@ -1,5 +1,5 @@
 class GamesController < ApplicationController
-  before_action :set_game, only: [ :show, :host, :start, :reveal, :advance ]
+  before_action :set_game, only: [ :show, :host, :status, :start, :reveal, :advance ]
 
   def new
     @game = Game.new
@@ -8,7 +8,6 @@ class GamesController < ApplicationController
   def create
     @game = Game.new
     if @game.save
-      session[:host_game_id] = @game.id
       redirect_to host_game_path(@game)
     else
       render :new, status: :unprocessable_entity
@@ -20,32 +19,34 @@ class GamesController < ApplicationController
   end
 
   def host
-    unless session[:host_game_id] == @game.id
-      redirect_to root_path, alert: "Host access only."
-      return
-    end
     @listing = @game.current_listing
     @players = @game.players.order(:created_at)
+    @leaderboard = @game.leaderboard(limit: 5)
+    @round_results = @game.round_results if @game.state == "revealing"
+  end
+
+  # Lightweight JSON endpoint for polling — no view rendering, just game state
+  def status
+    guesses_count = @game.guesses.where(round: @game.current_round).count
+    players = @game.players.order(:created_at).pluck(:name)
+    render json: {
+      state: @game.state,
+      current_round: @game.current_round,
+      guesses_count: guesses_count,
+      player_count: players.length,
+      player_names: players
+    }
   end
 
   def start
-    unless session[:host_game_id] == @game.id
-      redirect_to root_path
-      return
-    end
-
-    @game.update!(state: "playing", current_round: 0)
+    @game.update!(state: "playing", current_round: 0, round_started_at: Time.current)
     broadcast_reload(@game)
     redirect_to host_game_path(@game)
   end
 
   def reveal
-    unless session[:host_game_id] == @game.id
-      redirect_to root_path
-      return
-    end
-
     @game.update!(state: "revealing")
+    @game.reload  # clear association cache before scoring
     @game.score_round!
     @game.reload
 
@@ -54,15 +55,14 @@ class GamesController < ApplicationController
   end
 
   def advance
-    unless session[:host_game_id] == @game.id
-      redirect_to root_path
-      return
-    end
-
     if @game.last_round?
       @game.update!(state: "finished")
     else
-      @game.update!(state: "playing", current_round: @game.current_round + 1)
+      @game.update!(
+        state: "playing",
+        current_round: @game.current_round + 1,
+        round_started_at: Time.current
+      )
     end
 
     broadcast_reload(@game)
@@ -75,7 +75,6 @@ class GamesController < ApplicationController
     @game = Game.find(params[:id])
   end
 
-  # Broadcast a Turbo Stream that triggers all player pages to reload themselves
   def broadcast_reload(game)
     Turbo::StreamsChannel.broadcast_action_to(
       game.channel_name,

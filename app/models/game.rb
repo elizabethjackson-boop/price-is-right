@@ -33,24 +33,60 @@ class Game < ApplicationRecord
     "game_#{id}"
   end
 
+  def leaderboard(limit: 5)
+    players.order(score: :desc, created_at: :asc).limit(limit)
+  end
+
+  def round_results
+    guesses.where(round: current_round)
+           .includes(:player)
+           .where.not(result: nil)
+           .order(points: :desc, created_at: :asc)
+  end
+
   def score_round!
     listing = current_listing
     actual_price = listing[:price]
 
-    players.each do |player|
-      guess = player.guesses.find_by(round: current_round)
-      next unless guess
+    round_guesses = guesses.where(round: current_round)
+                           .includes(:player)
+                           .order(:created_at)
 
+    # First pass: mark results and identify correct guesses
+    correct_guesses = []
+    round_guesses.each do |guess|
       diff = guess.amount - actual_price
       over = diff > 0
       exact = diff == 0
+      result = exact ? "exact" : over ? "lose" : "win"
+      guess.assign_attributes(diff: diff, result: result)
 
-      guess.update!(
-        diff: diff,
-        result: exact ? "exact" : over ? "lose" : "win"
+      if over
+        guess.assign_attributes(speed_bonus: 0, points: 0)
+      else
+        correct_guesses << guess
+      end
+    end
+
+    # Second pass: compute speed ranks and points for correct guesses
+    correct_guesses.each_with_index do |guess, rank|
+      base = 10
+      pct_off = guess.diff.abs.to_f / actual_price * 100
+      accuracy_bonus = [ 5 - (pct_off / 5).floor, 0 ].max
+      speed = rank < 5 ? (5 - rank) : 0
+
+      guess.assign_attributes(
+        speed_bonus: speed,
+        points: base + accuracy_bonus + speed
       )
+    end
 
-      player.increment!(:score) unless over
+    # Bulk save in a transaction
+    Guess.transaction do
+      round_guesses.each(&:save!)
+      players.each do |player|
+        player.update!(score: player.guesses.sum(:points))
+      end
     end
   end
 

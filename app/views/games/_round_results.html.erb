@@ -1,0 +1,26 @@
+<% if round_results.any? %>
+  <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:16px; margin-top:12px;">
+    <div style="font-size:12px; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-bottom:12px">THIS ROUND'S RESULTS</div>
+    <% round_results.each do |guess| %>
+      <div style="display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+        <div style="font-size:16px;">
+          <%= (guess.correct? ? (guess.speed_bonus > 0 ? "&#9889;" : "&#9989;") : "&#10060;").html_safe %>
+        </div>
+        <div style="flex:1; font-size:15px; font-weight:600; color:<%= guess.correct? ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.4)' %>;">
+          <%= guess.player.name %>
+          <% if guess.speed_bonus > 0 %>
+            <span style="font-size:11px; color:#f59e0b; margin-left:4px;">FAST +<%= guess.speed_bonus %></span>
+          <% end %>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:14px; font-weight:600; color:<%= guess.correct? ? '#10b981' : '#ef4444' %>;">
+            $<%= number_with_delimiter(guess.amount) %>
+          </div>
+          <div style="font-size:11px; color:rgba(255,255,255,0.3);">
+            <%= guess.points %> pts
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

@@ -20,6 +20,8 @@ class PlayersController < ApplicationController
     @player = @game.players.find_by!(token: params[:token])
     @listing = @game.current_listing
     @guess = @player.current_guess(@game.current_round)
+    @leaderboard = @game.leaderboard(limit: 5)
+    @round_results = @game.round_results if @game.state == "revealing"
   end
 
   def guess
@@ -37,13 +39,10 @@ class PlayersController < ApplicationController
       return
     end
 
+    # Delete and recreate so created_at reflects final submission time for speed scoring
     existing_guess = @player.guesses.find_by(round: @game.current_round)
-
-    if existing_guess
-      existing_guess.update!(amount: raw_amount)
-    else
-      @player.guesses.create!(round: @game.current_round, amount: raw_amount)
-    end
+    existing_guess&.destroy!
+    @player.guesses.create!(round: @game.current_round, amount: raw_amount)
 
     broadcast_guess_count
     redirect_to player_game_path(@game.code, @player.token)

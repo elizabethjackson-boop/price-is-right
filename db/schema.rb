@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_193606) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_07_223816) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -18,6 +18,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_193606) do
     t.string "code", null: false
     t.datetime "created_at", null: false
     t.integer "current_round", default: 0, null: false
+    t.datetime "round_started_at"
     t.string "state", default: "waiting", null: false
     t.datetime "updated_at", null: false
   end
@@ -27,9 +28,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_193606) do
     t.datetime "created_at", null: false
     t.integer "diff"
     t.bigint "player_id", null: false
+    t.integer "points", default: 0, null: false
     t.string "result"
     t.integer "round"
+    t.integer "speed_bonus", default: 0, null: false
     t.datetime "updated_at", null: false
+    t.index ["player_id", "round"], name: "index_guesses_on_player_id_and_round", unique: true
     t.index ["player_id"], name: "index_guesses_on_player_id"
   end
 

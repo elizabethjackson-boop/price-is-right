@@ -12,34 +12,41 @@ export default class extends Controller {
   }
 
   connect() {
-    // Listen for ActionCable broadcasts via Turbo Stream (handled automatically by turbo_stream_from tag)
-    // We also listen for custom events dispatched from Turbo
-    this.element.addEventListener("turbo:before-stream-render", this.handleStreamRender.bind(this))
-    document.addEventListener("game:reveal", this.handleReveal.bind(this))
-    document.addEventListener("game:advance", this.handleAdvance.bind(this))
-    document.addEventListener("game:started", this.handleStarted.bind(this))
+    this.startPolling()
   }
 
   disconnect() {
-    document.removeEventListener("game:reveal", this.handleReveal.bind(this))
-    document.removeEventListener("game:advance", this.handleAdvance.bind(this))
-    document.removeEventListener("game:started", this.handleStarted.bind(this))
+    this.stopPolling()
   }
 
-  handleStreamRender(event) {
-    // Let Turbo handle stream renders normally
+  startPolling() {
+    this.pollInterval = setInterval(() => {
+      this.checkForStateChange()
+    }, 1500)
   }
 
-  handleReveal(event) {
-    // Page will be reloaded via Turbo Stream broadcast
+  stopPolling() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval)
+      this.pollInterval = null
+    }
   }
 
-  handleAdvance(event) {
-    // Page will be reloaded via Turbo Stream broadcast
-  }
+  async checkForStateChange() {
+    try {
+      const response = await fetch(`/games/${this.gameIdValue}/status`, {
+        headers: { "Accept": "application/json" }
+      })
+      const data = await response.json()
 
-  handleStarted(event) {
-    // Page will be reloaded via Turbo Stream broadcast
+      // If state or round changed, reload the page
+      if (data.state !== this.gameStateValue || data.current_round !== this.currentRoundValue) {
+        this.stopPolling()
+        Turbo.visit(window.location.href, { action: "replace" })
+      }
+    } catch (e) {
+      // Silently fail — will retry on next poll
+    }
   }
 
   formatAmount(event) {

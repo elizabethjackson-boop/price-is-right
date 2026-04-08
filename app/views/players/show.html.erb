@@ -145,6 +145,11 @@
             </div>
           <% end %>
         </div>
+
+        <%# Leaderboard %>
+        <div style="margin-top:16px; text-align:left;">
+          <%= render "games/leaderboard", game: @game %>
+        </div>
       </div>
     </div>
 
@@ -173,21 +178,31 @@
             </div>
             <% diff_color = g.result == "exact" ? "#f59e0b" : g.result == "lose" ? "#ef4444" : "#10b981" %>
             <% diff_label = g.result == "exact" ? "Exact!" : g.result == "lose" ? "+$#{number_with_delimiter(g.diff.abs)} over" : "-$#{number_with_delimiter(g.diff.abs)} under" %>
-            <div style="font-size:13px; font-weight:600; color:<%= diff_color %>;"><%= diff_label %></div>
+            <div style="font-size:13px; font-weight:600; color:<%= diff_color %>;">
+              <%= diff_label %>
+              <% if g.points > 0 %>
+                <span style="color:rgba(255,255,255,0.3); font-weight:400;"> (<%= g.points %> pts)</span>
+              <% end %>
+            </div>
           </div>
         <% end %>
 
         <div style="margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1);">
           <div style="font-size:14px; color:rgba(255,255,255,0.4); letter-spacing:1px;">YOUR SCORE</div>
-          <div style="font-size:48px; font-weight:800; color:#f59e0b;"><%= @player.score %> / <%= @game.total_rounds %></div>
+          <div style="font-size:48px; font-weight:800; color:#f59e0b;"><%= @player.score %></div>
           <div style="font-size:15px; color:rgba(255,255,255,0.5); margin-top:4px;">
-            <%= @player.score %> guess<%= @player.score != 1 ? "es" : "" %> without going over
+            total points across <%= @game.total_rounds %> rounds
           </div>
+        </div>
+
+        <%# Leaderboard %>
+        <div style="margin-top:16px;">
+          <%= render "games/leaderboard", game: @game %>
         </div>
 
         <div style="margin-top:24px; padding:16px; background:rgba(245,158,11,0.08); border-radius:10px; border:1px solid rgba(245,158,11,0.2);">
           <p style="font-size:14px; color:rgba(255,255,255,0.6);">Drop your score in the chat!</p>
-          <p style="font-size:18px; font-weight:700; color:white; margin-top:6px;"><%= @player.name %>: <%= @player.score %>/<%= @game.total_rounds %> &#127968;</p>
+          <p style="font-size:18px; font-weight:700; color:white; margin-top:6px;"><%= @player.name %>: <%= @player.score %> pts &#127968;</p>
         </div>
 
         <div style="margin-top:20px;">

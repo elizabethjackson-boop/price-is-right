@@ -32,17 +32,16 @@
       <p style="font-size:15px; color:rgba(255,255,255,0.4); margin-bottom:24px">Players — go to this URL and enter the code to join:</p>
 
       <div style="background:rgba(0,0,0,0.3); border-radius:12px; padding:20px; margin-bottom:24px;">
-        <div style="font-size:13px; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-bottom:8px">JOIN CODE</div>
-        <div style="font-size:48px; font-weight:800; color:#f59e0b; letter-spacing:8px"><%= @game.code %></div>
-        <div style="font-size:14px; color:rgba(255,255,255,0.4); margin-top:8px">
-          Players go to: <strong style="color:rgba(255,255,255,0.7);">/play/<%= @game.code %></strong>
-        </div>
+        <div style="font-size:13px; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-bottom:8px">PLAYER JOIN LINK</div>
+        <% join_url = join_game_url(@game.code) %>
+        <a href="<%= join_url %>" target="_blank" style="font-size:18px; font-weight:700; color:#f59e0b; word-break:break-all; text-decoration:underline;"><%= join_url %></a>
+        <div style="font-size:48px; font-weight:800; color:#f59e0b; letter-spacing:8px; margin-top:16px"><%= @game.code %></div>
+        <p style="font-size:13px; color:rgba(255,255,255,0.3); margin-top:8px">Share this link — or players can go to the site and enter code <strong style="color:rgba(255,255,255,0.6);"><%= @game.code %></strong></p>
       </div>
 
-      <%# Player list refreshed via turbo frame %>
-      <%= turbo_frame_tag "player_list" do %>
+      <div id="player-list-area" data-controller="player-list-poll" data-player-list-poll-game-id-value="<%= @game.id %>">
         <%= render "player_list", players: @players %>
-      <% end %>
+      </div>
 
       <%= form_with url: start_game_path(@game), method: :post, style: "margin-top:24px" do %>
         <%= submit_tag "START ROUND 1", class: "btn" %>
@@ -75,16 +74,13 @@
       </div>
     </div>
 
-    <div style="text-align:center; margin-top:20px; width:100%; max-width:800px;">
+    <div style="text-align:center; margin-top:20px; width:100%; max-width:800px;" data-controller="host-poll" data-host-poll-game-id-value="<%= @game.id %>">
       <p style="font-size:16px; color:rgba(255,255,255,0.4); margin-bottom:16px">Players are submitting their guesses now...</p>
 
-      <%# Show guess count — updated live via Turbo Stream when players submit %>
-      <%= turbo_frame_tag "guess_count" do %>
-        <p style="font-size:14px; color:rgba(255,255,255,0.3); margin-bottom:16px">
-          <% guesses_in = @game.guesses.where(round: @game.current_round).count %>
-          <%= guesses_in %> / <%= @game.players.count %> guesses received
-        </p>
-      <% end %>
+      <p id="guess-count-text" style="font-size:14px; color:rgba(255,255,255,0.3); margin-bottom:16px">
+        <% guesses_in = @game.guesses.where(round: @game.current_round).count %>
+        <%= guesses_in %> / <%= @game.players.count %> guesses received
+      </p>
 
       <%= form_with url: reveal_game_path(@game), method: :post do %>
         <%= submit_tag "REVEAL THE PRICE", class: "btn", style: "max-width:400px; display:block; margin:0 auto;" %>
@@ -131,6 +127,11 @@
         }
       })();
     </script>
+
+    <%# Round Results %>
+    <div style="max-width:800px; width:100%; margin-bottom:12px;">
+      <%= render "round_results", round_results: @round_results %>
+    </div>
 
     <%# Leaderboard %>
     <div style="max-width:800px; width:100%; margin-bottom:20px;">
