@@ -27,7 +27,7 @@
           <p style="font-size:13px; color:rgba(255,255,255,0.3); margin-top:8px">Share this link — or players can go to the site and enter code <strong style="color:rgba(255,255,255,0.6);"><%= @game.code %></strong></p>
         </div>
 
-        <div id="player-list-area" data-controller="player-list-poll" data-player-list-poll-game-id-value="<%= @game.id %>">
+        <div id="player-list-area" data-controller="host-poll" data-host-poll-game-id-value="<%= @game.id %>">
           <%= render "player_list", players: @players %>
         </div>
 
@@ -131,7 +131,7 @@
     <%# Leaderboard %>
     <div style="max-width:800px; width:100%; margin-bottom:20px;">
       <%= turbo_frame_tag "leaderboard" do %>
-        <%= render "leaderboard", game: @game %>
+        <%= render "leaderboard", game: @game, top_players: @leaderboard %>
       <% end %>
     </div>
 
@@ -156,7 +156,7 @@
         <div class="sub-label" style="margin-bottom:20px">&#127775; FINAL LEADERBOARD</div>
 
         <%= turbo_frame_tag "leaderboard" do %>
-          <%= render "leaderboard", game: @game %>
+          <%= render "leaderboard", game: @game, top_players: @leaderboard %>
         <% end %>
 
         <div class="sub-label" style="margin:28px 0 16px;">THE 5 LISTINGS</div>

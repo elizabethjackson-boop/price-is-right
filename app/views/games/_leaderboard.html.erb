@@ -1,4 +1,6 @@
-<% top_players = game.leaderboard(limit: 5) %>
+<%# Use pre-fetched @leaderboard from the controller when passed as a local; fall back
+    to querying if the partial is rendered standalone without a pre-fetched collection. %>
+<% top_players ||= game.leaderboard(limit: 5) %>
 <% if top_players.any? %>
   <div style="background:rgba(0,0,0,0.2); border-radius:14px; padding:18px; margin-top:8px; border:1px solid rgba(255,215,0,0.1);">
     <div class="sub-label" style="margin-bottom:14px">&#127775; TOP 5 LEADERBOARD</div>

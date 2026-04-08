@@ -53,6 +53,9 @@ class Game < ApplicationRecord
     listing = current_listing
     actual_price = listing[:price]
 
+    # Speed rank is determined by created_at order. Tests that assert speed bonuses
+    # must set explicit created_at values on guesses to avoid non-deterministic rank
+    # when two guesses are created within the same millisecond.
     round_guesses = guesses.where(round: current_round)
                            .includes(:player)
                            .order(:created_at)
@@ -95,12 +98,13 @@ class Game < ApplicationRecord
       )
     end
 
-    # Bulk save in a transaction
+    # Bulk save in a transaction.
+    # Player scores are updated via a single correlated UPDATE to avoid N+1
+    # (one SELECT SUM + one UPDATE per player at scale).
     Guess.transaction do
       round_guesses.each(&:save!)
-      players.each do |player|
-        player.update!(score: player.guesses.sum(:points))
-      end
+      Player.where(game_id: id)
+            .update_all("score = (SELECT COALESCE(SUM(points), 0) FROM guesses WHERE guesses.player_id = players.id)")
     end
   end
 

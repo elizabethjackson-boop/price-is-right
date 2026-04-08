@@ -136,7 +136,7 @@
 
         <%# Leaderboard %>
         <div style="margin-top:16px; text-align:left;">
-          <%= render "games/leaderboard", game: @game %>
+          <%= render "games/leaderboard", game: @game, top_players: @leaderboard %>
         </div>
       </div>
     </div>
@@ -185,7 +185,7 @@
 
         <%# Leaderboard %>
         <div style="margin-top:20px;">
-          <%= render "games/leaderboard", game: @game %>
+          <%= render "games/leaderboard", game: @game, top_players: @leaderboard %>
         </div>
 
         <div style="margin-top:24px; padding:16px; background:rgba(255,215,0,0.08); border-radius:14px; border:1px solid rgba(255,215,0,0.2); text-align:center;">

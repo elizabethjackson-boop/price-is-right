@@ -39,7 +39,7 @@ class GamesController < ApplicationController
   end
 
   def start
-    @game.update!(state: "playing", current_round: 0, round_started_at: Time.current)
+    @game.update!(state: "playing", current_round: 0)
     broadcast_reload(@game)
     redirect_to host_game_path(@game)
   end
@@ -60,8 +60,7 @@ class GamesController < ApplicationController
     else
       @game.update!(
         state: "playing",
-        current_round: @game.current_round + 1,
-        round_started_at: Time.current
+        current_round: @game.current_round + 1
       )
     end
 

@@ -18,7 +18,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_223816) do
     t.string "code", null: false
     t.datetime "created_at", null: false
     t.integer "current_round", default: 0, null: false
-    t.datetime "round_started_at"
     t.string "state", default: "waiting", null: false
     t.datetime "updated_at", null: false
   end
