@@ -23,5 +23,39 @@
 
     <!-- Animated marquee light bar at bottom -->
     <div class="marquee-bar" style="position:fixed; bottom:0; left:0; right:0; z-index:200;"></div>
+
+    <!-- Generate light bulb dots around .bulb-border elements -->
+    <script>
+      document.addEventListener("turbo:load", initBulbs);
+      document.addEventListener("DOMContentLoaded", initBulbs);
+      function initBulbs() {
+        var colors = ['#FFD700','#FF3333','#00E676','#FF8C00','#FFD700','#FF3333','#00E676','#FF8C00'];
+        document.querySelectorAll('.bulb-border').forEach(function(el) {
+          if (el.dataset.bulbsInit) return;
+          el.dataset.bulbsInit = '1';
+          var rect = el.getBoundingClientRect();
+          var w = el.offsetWidth, h = el.offsetHeight;
+          var spacing = 36;
+          var bulbs = [];
+          // Top edge
+          for (var x = spacing/2; x < w; x += spacing) bulbs.push({left: x-6, top: -6});
+          // Bottom edge
+          for (var x = spacing/2; x < w; x += spacing) bulbs.push({left: x-6, top: h-6});
+          // Left edge
+          for (var y = spacing; y < h-spacing/2; y += spacing) bulbs.push({left: -6, top: y-6});
+          // Right edge
+          for (var y = spacing; y < h-spacing/2; y += spacing) bulbs.push({left: w-6, top: y-6});
+          bulbs.forEach(function(pos, i) {
+            var dot = document.createElement('div');
+            dot.className = 'bulb-dot ' + (i % 2 === 0 ? 'bulb-group-a' : 'bulb-group-b');
+            dot.style.left = pos.left + 'px';
+            dot.style.top = pos.top + 'px';
+            var c = colors[i % colors.length];
+            dot.style.setProperty('--bulb-color', c);
+            el.appendChild(dot);
+          });
+        });
+      }
+    </script>
   </body>
 </html>

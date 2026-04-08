@@ -38,55 +38,47 @@ body {
 }
 
 /* ── Light Bulb Border ── */
+/* Uses JS-generated bulb elements (see bulb-border-init below) */
 .bulb-border {
   position: relative;
-  border: 3px solid var(--pir-gold);
+  border: 3px solid rgba(255,215,0,0.4);
   border-radius: 20px;
-  box-shadow: 0 0 15px rgba(255,215,0,0.3), inset 0 0 15px rgba(255,215,0,0.05);
-}
-
-.bulb-border::before {
-  content: '';
-  position: absolute;
-  inset: -8px;
-  border-radius: 24px;
-  background:
-    radial-gradient(circle 5px at 10% 0%, var(--pir-gold) 40%, transparent 60%),
-    radial-gradient(circle 5px at 25% 0%, var(--pir-orange) 40%, transparent 60%),
-    radial-gradient(circle 5px at 40% 0%, var(--pir-red) 40%, transparent 60%),
-    radial-gradient(circle 5px at 55% 0%, var(--pir-gold) 40%, transparent 60%),
-    radial-gradient(circle 5px at 70% 0%, var(--pir-green) 40%, transparent 60%),
-    radial-gradient(circle 5px at 85% 0%, var(--pir-orange) 40%, transparent 60%),
-    radial-gradient(circle 5px at 10% 100%, var(--pir-green) 40%, transparent 60%),
-    radial-gradient(circle 5px at 25% 100%, var(--pir-gold) 40%, transparent 60%),
-    radial-gradient(circle 5px at 40% 100%, var(--pir-orange) 40%, transparent 60%),
-    radial-gradient(circle 5px at 55% 100%, var(--pir-red) 40%, transparent 60%),
-    radial-gradient(circle 5px at 70% 100%, var(--pir-gold) 40%, transparent 60%),
-    radial-gradient(circle 5px at 85% 100%, var(--pir-green) 40%, transparent 60%),
-    radial-gradient(circle 5px at 0% 15%, var(--pir-red) 40%, transparent 60%),
-    radial-gradient(circle 5px at 0% 35%, var(--pir-gold) 40%, transparent 60%),
-    radial-gradient(circle 5px at 0% 55%, var(--pir-green) 40%, transparent 60%),
-    radial-gradient(circle 5px at 0% 75%, var(--pir-orange) 40%, transparent 60%),
-    radial-gradient(circle 5px at 0% 90%, var(--pir-red) 40%, transparent 60%),
-    radial-gradient(circle 5px at 100% 15%, var(--pir-orange) 40%, transparent 60%),
-    radial-gradient(circle 5px at 100% 35%, var(--pir-green) 40%, transparent 60%),
-    radial-gradient(circle 5px at 100% 55%, var(--pir-gold) 40%, transparent 60%),
-    radial-gradient(circle 5px at 100% 75%, var(--pir-red) 40%, transparent 60%),
-    radial-gradient(circle 5px at 100% 90%, var(--pir-gold) 40%, transparent 60%);
-  pointer-events: none;
-  animation: bulb-twinkle 2s ease-in-out infinite alternate;
-  z-index: 0;
-}
-
-@keyframes bulb-twinkle {
-  0%   { opacity: 0.7; filter: brightness(0.9); }
-  50%  { opacity: 1;   filter: brightness(1.2); }
-  100% { opacity: 0.8; filter: brightness(1.0); }
+  box-shadow: 0 0 20px rgba(255,215,0,0.15), inset 0 0 20px rgba(255,215,0,0.03);
 }
 
 .bulb-border > * {
   position: relative;
   z-index: 1;
+}
+
+/* Individual light bulb dot */
+.bulb-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  z-index: 2;
+  transition: none;
+  /* Bulb shape: bright center with soft glow */
+  background: radial-gradient(circle at 40% 35%, #fff 0%, var(--bulb-color, #FFD700) 40%, transparent 70%);
+  box-shadow: 0 0 6px 2px var(--bulb-color, #FFD700);
+}
+
+/* Chase animation: alternating groups light up */
+.bulb-dot.bulb-group-a {
+  animation: bulb-chase-a 3s ease-in-out infinite;
+}
+.bulb-dot.bulb-group-b {
+  animation: bulb-chase-b 3s ease-in-out infinite;
+}
+
+@keyframes bulb-chase-a {
+  0%, 100% { opacity: 1;   box-shadow: 0 0 8px 3px var(--bulb-color, #FFD700), 0 0 16px 6px var(--bulb-color, #FFD700); }
+  50%      { opacity: 0.2; box-shadow: 0 0 2px 1px var(--bulb-color, #FFD700); }
+}
+@keyframes bulb-chase-b {
+  0%, 100% { opacity: 0.2; box-shadow: 0 0 2px 1px var(--bulb-color, #FFD700); }
+  50%      { opacity: 1;   box-shadow: 0 0 8px 3px var(--bulb-color, #FFD700), 0 0 16px 6px var(--bulb-color, #FFD700); }
 }
 
 /* ── Cards ── */
