@@ -29,29 +29,41 @@
       document.addEventListener("turbo:load", initBulbs);
       document.addEventListener("DOMContentLoaded", initBulbs);
       function initBulbs() {
-        var colors = ['#FFD700','#FF3333','#00E676','#FF8C00','#FFD700','#FF3333','#00E676','#FF8C00'];
+        var colors = ['#FFD700','#FF3333','#00E676','#FF8C00'];
+        var CYCLE = 6; // seconds for one full loop around the border
+        var SPACING = 36;
+
         document.querySelectorAll('.bulb-border').forEach(function(el) {
           if (el.dataset.bulbsInit) return;
           el.dataset.bulbsInit = '1';
-          var rect = el.getBoundingClientRect();
           var w = el.offsetWidth, h = el.offsetHeight;
-          var spacing = 36;
+
+          // Build bulb positions CLOCKWISE around the perimeter:
+          // Top (left→right), Right (top→bottom), Bottom (right→left), Left (bottom→top)
           var bulbs = [];
           // Top edge
-          for (var x = spacing/2; x < w; x += spacing) bulbs.push({left: x-6, top: -6});
-          // Bottom edge
-          for (var x = spacing/2; x < w; x += spacing) bulbs.push({left: x-6, top: h-6});
-          // Left edge
-          for (var y = spacing; y < h-spacing/2; y += spacing) bulbs.push({left: -6, top: y-6});
+          for (var x = SPACING/2; x < w; x += SPACING)
+            bulbs.push({ left: x - 6, top: -6 });
           // Right edge
-          for (var y = spacing; y < h-spacing/2; y += spacing) bulbs.push({left: w-6, top: y-6});
+          for (var y = SPACING/2; y < h; y += SPACING)
+            bulbs.push({ left: w - 6, top: y - 6 });
+          // Bottom edge (right to left)
+          for (var x = w - SPACING/2; x > 0; x -= SPACING)
+            bulbs.push({ left: x - 6, top: h - 6 });
+          // Left edge (bottom to top)
+          for (var y = h - SPACING/2; y > 0; y -= SPACING)
+            bulbs.push({ left: -6, top: y - 6 });
+
+          var total = bulbs.length;
           bulbs.forEach(function(pos, i) {
             var dot = document.createElement('div');
-            dot.className = 'bulb-dot ' + (i % 2 === 0 ? 'bulb-group-a' : 'bulb-group-b');
+            dot.className = 'bulb-dot';
             dot.style.left = pos.left + 'px';
             dot.style.top = pos.top + 'px';
-            var c = colors[i % colors.length];
-            dot.style.setProperty('--bulb-color', c);
+            dot.style.setProperty('--bulb-color', colors[i % colors.length]);
+            // Stagger delays so the light wave travels around the border
+            dot.style.setProperty('--bulb-cycle', CYCLE + 's');
+            dot.style.setProperty('--bulb-delay', ((i / total) * CYCLE).toFixed(2) + 's');
             el.appendChild(dot);
           });
         });

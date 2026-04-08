@@ -58,27 +58,22 @@ body {
   height: 12px;
   border-radius: 50%;
   z-index: 2;
-  transition: none;
   /* Bulb shape: bright center with soft glow */
   background: radial-gradient(circle at 40% 35%, #fff 0%, var(--bulb-color, #FFD700) 40%, transparent 70%);
-  box-shadow: 0 0 6px 2px var(--bulb-color, #FFD700);
+  /* Dim by default — the chase wave lights each bulb up as it passes */
+  opacity: 0.15;
+  box-shadow: 0 0 2px 1px var(--bulb-color, #FFD700);
+  animation: bulb-chase var(--bulb-cycle, 4s) ease-in-out infinite;
+  animation-delay: var(--bulb-delay, 0s);
 }
 
-/* Chase animation: alternating groups light up */
-.bulb-dot.bulb-group-a {
-  animation: bulb-chase-a 3s ease-in-out infinite;
-}
-.bulb-dot.bulb-group-b {
-  animation: bulb-chase-b 3s ease-in-out infinite;
-}
-
-@keyframes bulb-chase-a {
-  0%, 100% { opacity: 1;   box-shadow: 0 0 8px 3px var(--bulb-color, #FFD700), 0 0 16px 6px var(--bulb-color, #FFD700); }
-  50%      { opacity: 0.2; box-shadow: 0 0 2px 1px var(--bulb-color, #FFD700); }
-}
-@keyframes bulb-chase-b {
-  0%, 100% { opacity: 0.2; box-shadow: 0 0 2px 1px var(--bulb-color, #FFD700); }
-  50%      { opacity: 1;   box-shadow: 0 0 8px 3px var(--bulb-color, #FFD700), 0 0 16px 6px var(--bulb-color, #FFD700); }
+/* Chase keyframes: a brief bright pulse travels through each bulb.
+   Only ~20% of the cycle is "lit" so only a few bulbs glow at once,
+   creating the traveling-light-around-the-border effect. */
+@keyframes bulb-chase {
+  0%, 100% { opacity: 0.15; box-shadow: 0 0 2px 1px var(--bulb-color, #FFD700); }
+  8%       { opacity: 1;    box-shadow: 0 0 10px 4px var(--bulb-color, #FFD700), 0 0 20px 8px var(--bulb-color, #FFD700); }
+  20%      { opacity: 0.15; box-shadow: 0 0 2px 1px var(--bulb-color, #FFD700); }
 }
 
 /* ── Cards ── */
