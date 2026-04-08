@@ -49,17 +49,19 @@
       </div>
     </div>
 
-    <div class="pir-card slide-up" style="padding:0; overflow:hidden; max-width:800px; width:100%; border-radius:20px; animation-delay:0.1s;">
-      <img class="listing-img" src="<%= listing[:image] %>" alt="listing">
-      <div style="padding:24px 32px">
-        <h2 style="font-size:32px; margin-bottom:8px; font-weight:700; color:white;"><%= listing[:address] %></h2>
-        <div class="specs">
-          <span>&#128719; <%= listing[:beds] %> Bed</span><span class="sep">|</span>
-          <span>&#128705; <%= listing[:baths] %> Bath</span><span class="sep">|</span>
-          <span>&#128208; <%= listing[:sqft] %> sqft</span><span class="sep">|</span>
-          <span>&#128197; Built <%= listing[:year] %></span>
+    <div class="bulb-border slide-up" style="max-width:800px; width:100%; animation-delay:0.1s;">
+      <div class="pir-card" style="padding:0; overflow:hidden; border-radius:16px;">
+        <img class="listing-img" src="<%= listing[:image] %>" alt="listing">
+        <div style="padding:24px 32px">
+          <h2 style="font-size:32px; margin-bottom:8px; font-weight:700; color:white;"><%= listing[:address] %></h2>
+          <div class="specs">
+            <span>&#128719; <%= listing[:beds] %> Bed</span><span class="sep">|</span>
+            <span>&#128705; <%= listing[:baths] %> Bath</span><span class="sep">|</span>
+            <span>&#128208; <%= listing[:sqft] %> sqft</span><span class="sep">|</span>
+            <span>&#128197; Built <%= listing[:year] %></span>
+          </div>
+          <p style="color:rgba(255,255,255,0.35); font-size:17px; margin-top:10px"><%= listing[:feature] %></p>
         </div>
-        <p style="color:rgba(255,255,255,0.35); font-size:17px; margin-top:10px"><%= listing[:feature] %></p>
       </div>
     </div>
 
@@ -88,14 +90,16 @@
       </div>
     </div>
 
-    <div class="pir-card" style="padding:0; overflow:hidden; max-width:800px; width:100%; border-radius:20px;">
-      <img class="listing-img" src="<%= listing[:image] %>" alt="listing" style="height:280px;">
-      <div style="padding:20px 32px">
-        <h2 style="font-size:28px; margin-bottom:6px; font-weight:700; color:white;"><%= listing[:address] %></h2>
-        <div class="specs" style="font-size:17px;">
-          <span><%= listing[:beds] %> Bed</span><span class="sep">|</span>
-          <span><%= listing[:baths] %> Bath</span><span class="sep">|</span>
-          <span><%= listing[:sqft] %> sqft</span>
+    <div class="bulb-border" style="max-width:800px; width:100%;">
+      <div class="pir-card" style="padding:0; overflow:hidden; border-radius:16px;">
+        <img class="listing-img" src="<%= listing[:image] %>" alt="listing" style="height:280px;">
+        <div style="padding:20px 32px">
+          <h2 style="font-size:28px; margin-bottom:6px; font-weight:700; color:white;"><%= listing[:address] %></h2>
+          <div class="specs" style="font-size:17px;">
+            <span><%= listing[:beds] %> Bed</span><span class="sep">|</span>
+            <span><%= listing[:baths] %> Bath</span><span class="sep">|</span>
+            <span><%= listing[:sqft] %> sqft</span>
+          </div>
         </div>
       </div>
     </div>
