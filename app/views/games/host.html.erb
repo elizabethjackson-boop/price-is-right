@@ -32,7 +32,7 @@
         </div>
 
         <%= form_with url: start_game_path(@game), method: :post, style: "margin-top:24px" do %>
-          <%= submit_tag "START ROUND 1 &#9654;".html_safe, class: "pir-btn" %>
+          <%= submit_tag "START ROUND 1 \u{25B6}".html_safe, class: "pir-btn" %>
         <% end %>
       </div>
     </div>
@@ -72,7 +72,7 @@
       </p>
 
       <%= form_with url: reveal_game_path(@game), method: :post do %>
-        <%= submit_tag "REVEAL THE PRICE &#128176;".html_safe, class: "pir-btn", style: "max-width:400px; margin:0 auto;" %>
+        <%= submit_tag "REVEAL THE PRICE \u{1F4B0}".html_safe, class: "pir-btn", style: "max-width:400px; margin:0 auto;" %>
       <% end %>
     </div>
 
@@ -134,7 +134,7 @@
     <div style="text-align:center; width:100%; max-width:800px;">
       <p style="font-size:16px; color:rgba(255,255,255,0.4); margin-bottom:16px">&#128241; Players can see their results on their screen!</p>
       <%= form_with url: advance_game_path(@game), method: :post do %>
-        <%= submit_tag(@game.last_round? ? "SEE FINAL RESULTS &#127942;" : "NEXT LISTING &#9654;", class: "pir-btn", style: "max-width:400px; margin:0 auto;") %>
+        <%= submit_tag((@game.last_round? ? "SEE FINAL RESULTS \u{1F3C6}" : "NEXT LISTING \u{25B6}").html_safe, class: "pir-btn", style: "max-width:400px; margin:0 auto;") %>
       <% end %>
     </div>
 
