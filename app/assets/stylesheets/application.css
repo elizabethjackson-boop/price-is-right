@@ -186,17 +186,17 @@ body {
   height: 6px;
   background: repeating-linear-gradient(
     90deg,
-    var(--pir-gold) 0px,
-    var(--pir-gold) 10px,
-    var(--pir-red) 10px,
-    var(--pir-red) 20px,
-    var(--pir-green) 20px,
-    var(--pir-green) 30px,
-    var(--pir-orange) 30px,
-    var(--pir-orange) 40px
+    #FFD700 0px,
+    #FFD700 10px,
+    #FFAA00 10px,
+    #FFAA00 20px,
+    #FFE066 20px,
+    #FFE066 30px,
+    #FF8C00 30px,
+    #FF8C00 40px
   );
   background-size: 200% 100%;
-  animation: marquee-shift 8s linear infinite;
+  animation: marquee-shift 30s linear infinite;
   border-radius: 3px;
 }
 
