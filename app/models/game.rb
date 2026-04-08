@@ -2,12 +2,19 @@ class Game < ApplicationRecord
   has_many :players, dependent: :destroy
   has_many :guesses, through: :players
 
+  # Real Clever Real Estate closed deals — sorted low to high price
+  # TODO: Replace "PHOTO_NEEDED" placeholders with real Zillow photo URLs
   LISTINGS = [
-    { image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=500&fit=crop", address: "2847 Ridgecrest Dr, Austin, TX", beds: 3, baths: 2, sqft: "2,100", price: 485_000, year: 2019, feature: "Open concept with chef's kitchen" },
-    { image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a6?w=800&h=500&fit=crop", address: "914 Elm Park Ln, Nashville, TN", beds: 4, baths: 3, sqft: "2,800", price: 625_000, year: 2017, feature: "Wraparound porch, finished basement" },
-    { image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=500&fit=crop", address: "1120 Maple Ridge Ct, Denver, CO", beds: 3, baths: 2, sqft: "1,950", price: 550_000, year: 2021, feature: "Mountain views, updated throughout" },
-    { image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=500&fit=crop", address: "5503 Oakwood Dr, Raleigh, NC", beds: 4, baths: 3, sqft: "3,200", price: 725_000, year: 2023, feature: "New build, smart home wired" },
-    { image: "https://images.unsplash.com/photo-1600566753376-12c8ab7c17a7?w=800&h=500&fit=crop", address: "780 Desert Bloom Way, Phoenix, AZ", beds: 3, baths: 2, sqft: "1,800", price: 410_000, year: 2020, feature: "Pool & spa, desert landscaping" }
+    { image: "PHOTO_NEEDED", address: "4444 Carmanwood Dr, Flint, MI", beds: 3, baths: 1, sqft: "1,587", price: 182_000, year: 1959, lot: "10,454 sqft", property_type: "Single Family", feature: "Sold March 2026" },
+    { image: "PHOTO_NEEDED", address: "1801 Winston Dr, South Bend, IN", beds: 4, baths: 2, sqft: "1,462", price: 212_000, year: 1961, lot: "8,276 sqft", property_type: "Single Family", feature: "Sold April 2026" },
+    { image: "PHOTO_NEEDED", address: "8407 Bending Branch Ln, Cypress, TX", beds: 4, baths: 4, sqft: "3,400", price: 440_000, year: 2004, lot: "8,842 sqft", property_type: "Single Family", feature: "Sold March 2026" },
+    { image: "PHOTO_NEEDED", address: "181 Austrian Dr, Blandon, PA", beds: 4, baths: 3, sqft: "2,263", price: 474_990, year: 2025, lot: "0.27 Acres", property_type: "Single Family", feature: "New construction, sold March 2026" },
+    { image: "PHOTO_NEEDED", address: "13910 NE 101st St, Vancouver, WA", beds: 3, baths: 3, sqft: "1,952", price: 546_900, year: 2014, lot: "5,227 sqft", property_type: "Single Family", feature: "Sold April 2026" },
+    { image: "PHOTO_NEEDED", address: "13828 N Lobelia Way, Oro Valley, AZ", beds: 2, baths: 2, sqft: "1,745", price: 640_000, year: 1995, lot: "6,970 sqft", property_type: "Single Family", feature: "Sold March 2026" },
+    { image: "PHOTO_NEEDED", address: "3219 N Richmond St, Chicago, IL", beds: 4, baths: 4, sqft: "1,920", price: 780_000, year: 1993, lot: "3,149 sqft", property_type: "Single Family", feature: "Sold April 2026" },
+    { image: "PHOTO_NEEDED", address: "11442 Pinehurst Dr, Lakeside, CA", beds: 4, baths: 3, sqft: "2,219", price: 925_000, year: 1953, lot: "1.49 Acres", property_type: "Single Family", feature: "Sold April 2026" },
+    { image: "PHOTO_NEEDED", address: "965 Chatsworth Dr, Melbourne, FL", beds: 4, baths: 4, sqft: "3,894", price: 940_000, year: 2001, lot: "0.32 Acres", property_type: "Single Family", feature: "Sold March 2026" },
+    { image: "PHOTO_NEEDED", address: "5206 Teesdale Ave, Valley Village, CA", beds: 3, baths: 2, sqft: "1,736", price: 1_120_000, year: 1948, lot: "7,005 sqft", property_type: "Single Family", feature: "Sold March 2026" },
   ].freeze
 
   STATES = %w[waiting playing revealing finished].freeze
@@ -44,11 +51,9 @@ class Game < ApplicationRecord
            .order(points: :desc, created_at: :asc)
   end
 
-  # Kahoot-style scoring: accuracy tiers + speed multiplier
-  # Over = 0 pts. Under = base points by accuracy tier, then speed multiplier.
-  # Creates big point spreads so there's always a clear winner.
-  SPEED_MULTIPLIERS = [ 1.5, 1.3, 1.2, 1.1 ].freeze  # 1st, 2nd, 3rd, 4th fastest
-
+  # Accuracy-only scoring — no speed bonus.
+  # Over = 0 pts. Under = points by accuracy tier.
+  # Max 1,000 per round, 10,000 across all 10 rounds.
   def score_round!
     listing = current_listing
     actual_price = listing[:price]
@@ -60,8 +65,6 @@ class Game < ApplicationRecord
                            .includes(:player)
                            .order(:created_at)
 
-    # First pass: mark results and identify correct (under/exact) guesses
-    correct_guesses = []
     round_guesses.each do |guess|
       diff = guess.amount - actual_price
       over = diff > 0
@@ -72,35 +75,20 @@ class Game < ApplicationRecord
       if over
         guess.assign_attributes(speed_bonus: 0, points: 0)
       else
-        correct_guesses << guess
+        pct_off = diff.abs.to_f / actual_price * 100
+
+        points = if pct_off <= 5     then 1000   # within 5% or exact
+                 elsif pct_off <= 10  then 750    # within 10%
+                 elsif pct_off <= 25  then 500    # within 25%
+                 else                      250    # under but far off
+                 end
+
+        guess.assign_attributes(speed_bonus: 0, points: points)
       end
     end
 
-    # Second pass: accuracy tier base points + speed multiplier
-    correct_guesses.each_with_index do |guess, rank|
-      pct_off = guess.diff.abs.to_f / actual_price * 100
-
-      # Accuracy tiers
-      base = if pct_off <= 5     then 1000   # within 5% or exact
-             elsif pct_off <= 10  then 750    # within 10%
-             elsif pct_off <= 25  then 500    # within 25%
-             else                      250    # under but far off
-             end
-
-      # Speed multiplier — fastest correct guessers get a bonus
-      multiplier = rank < SPEED_MULTIPLIERS.length ? SPEED_MULTIPLIERS[rank] : 1.0
-      total = (base * multiplier).round
-      speed_bonus_pts = total - base
-
-      guess.assign_attributes(
-        speed_bonus: speed_bonus_pts,
-        points: total
-      )
-    end
-
     # Bulk save in a transaction.
-    # Player scores are updated via a single correlated UPDATE to avoid N+1
-    # (one SELECT SUM + one UPDATE per player at scale).
+    # Player scores are updated via a single correlated UPDATE to avoid N+1.
     Guess.transaction do
       round_guesses.each(&:save!)
       Player.where(game_id: id)

@@ -7,8 +7,6 @@
           <% if guess.correct? %>
             <% if i == 0 %>
               &#128081;
-            <% elsif guess.speed_bonus > 0 %>
-              &#9889;
             <% else %>
               &#9989;
             <% end %>
@@ -18,9 +16,6 @@
         </div>
         <div style="flex:1; font-size:15px; font-weight:600; color:<%= guess.correct? ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.4)' %>;">
           <%= guess.player.name %>
-          <% if guess.speed_bonus > 0 %>
-            <span style="font-size:11px; color:var(--pir-gold); margin-left:4px; font-weight:700;">&#9889; +<%= number_with_delimiter(guess.speed_bonus) %></span>
-          <% end %>
         </div>
         <div style="text-align:right;">
           <div style="font-size:14px; font-weight:600; color:<%= guess.correct? ? 'var(--pir-green)' : 'var(--pir-red)' %>;">

@@ -6,7 +6,6 @@
 <% diff_text = exact ? "Nailed it!" : "$#{number_with_delimiter(guess.diff.abs)}#{over ? ' too high' : ' under'}" %>
 <% card_bg = over ? "rgba(255,51,51,0.1)" : "rgba(0,230,118,0.1)" %>
 <% card_border = over ? "rgba(255,51,51,0.3)" : "rgba(0,230,118,0.4)" %>
-<% base_pts = guess.points - guess.speed_bonus %>
 
 <div style="background:<%= card_bg %>; border:2px solid <%= card_border %>; border-radius:14px; padding:24px; text-align:center; margin-top:16px;">
   <div style="font-size:40px; margin-bottom:8px;"><%= icon.html_safe %></div>
@@ -16,24 +15,7 @@
   <div style="font-size:16px; color:rgba(255,255,255,0.6);"><%= diff_text %></div>
 
   <div style="margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.1);">
-    <%# Big point total %>
     <div style="font-size:42px; font-weight:800; color:<%= label_color %>;"><%= number_with_delimiter(guess.points) %></div>
-    <div style="font-size:14px; color:rgba(255,255,255,0.4); margin-bottom:8px;">points this round</div>
-
-    <% if guess.points > 0 %>
-      <%# Breakdown %>
-      <div style="display:flex; justify-content:center; gap:16px; margin-top:8px;">
-        <div style="text-align:center;">
-          <div style="font-size:18px; font-weight:700; color:rgba(255,255,255,0.8);"><%= number_with_delimiter(base_pts) %></div>
-          <div style="font-size:11px; color:rgba(255,255,255,0.35); letter-spacing:1px;">ACCURACY</div>
-        </div>
-        <% if guess.speed_bonus > 0 %>
-          <div style="text-align:center;">
-            <div style="font-size:18px; font-weight:700; color:var(--pir-gold);">+<%= number_with_delimiter(guess.speed_bonus) %></div>
-            <div style="font-size:11px; color:var(--pir-gold); letter-spacing:1px;">&#9889; SPEED</div>
-          </div>
-        <% end %>
-      </div>
-    <% end %>
+    <div style="font-size:14px; color:rgba(255,255,255,0.4);">points this round</div>
   </div>
 </div>

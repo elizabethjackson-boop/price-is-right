@@ -51,7 +51,9 @@
 
     <div class="bulb-border slide-up" style="max-width:800px; width:100%; animation-delay:0.1s;">
       <div class="pir-card" style="padding:0; overflow:hidden; border-radius:16px;">
-        <img class="listing-img" src="<%= listing[:image] %>" alt="listing">
+        <% if listing[:image].present? && listing[:image] != "PHOTO_NEEDED" %>
+          <img class="listing-img" src="<%= listing[:image] %>" alt="listing">
+        <% end %>
         <div style="padding:24px 32px">
           <h2 style="font-size:32px; margin-bottom:8px; font-weight:700; color:white;"><%= listing[:address] %></h2>
           <div class="specs">
@@ -60,7 +62,13 @@
             <span>&#128208; <%= listing[:sqft] %> sqft</span><span class="sep">|</span>
             <span>&#128197; Built <%= listing[:year] %></span>
           </div>
-          <p style="color:rgba(255,255,255,0.35); font-size:17px; margin-top:10px"><%= listing[:feature] %></p>
+          <div class="specs" style="margin-top:8px; font-size:15px;">
+            <span>&#127968; <%= listing[:property_type] %></span><span class="sep">|</span>
+            <span>&#128205; Lot: <%= listing[:lot] %></span>
+          </div>
+          <% if listing[:feature].present? %>
+            <p style="color:rgba(255,255,255,0.35); font-size:17px; margin-top:10px"><%= listing[:feature] %></p>
+          <% end %>
         </div>
       </div>
     </div>
@@ -92,7 +100,9 @@
 
     <div class="bulb-border" style="max-width:800px; width:100%;">
       <div class="pir-card" style="padding:0; overflow:hidden; border-radius:16px;">
-        <img class="listing-img" src="<%= listing[:image] %>" alt="listing" style="height:280px;">
+        <% if listing[:image].present? && listing[:image] != "PHOTO_NEEDED" %>
+          <img class="listing-img" src="<%= listing[:image] %>" alt="listing" style="height:280px;">
+        <% end %>
         <div style="padding:20px 32px">
           <h2 style="font-size:28px; margin-bottom:6px; font-weight:700; color:white;"><%= listing[:address] %></h2>
           <div class="specs" style="font-size:17px;">
@@ -159,7 +169,7 @@
           <%= render "leaderboard", game: @game, top_players: @leaderboard %>
         <% end %>
 
-        <div class="sub-label" style="margin:28px 0 16px;">THE 5 LISTINGS</div>
+        <div class="sub-label" style="margin:28px 0 16px;">ALL <%= Game::LISTINGS.length %> LISTINGS</div>
         <% Game::LISTINGS.each_with_index do |listing, i| %>
           <div style="display:flex; align-items:center; gap:16px; padding:14px 0; border-bottom:1px solid rgba(255,215,0,0.08)">
             <div class="rank-badge rank-<%= i < 3 ? (i+1).to_s : 'other' %>"><%= i + 1 %></div>
