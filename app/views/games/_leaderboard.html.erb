@@ -9,7 +9,7 @@
         </div>
         <div style="flex:1; font-size:16px; font-weight:600; color:rgba(255,255,255,0.85);"><%= player.name %></div>
         <div style="font-size:18px; font-weight:700; color:<%= i == 0 ? 'var(--pir-gold)' : 'rgba(255,255,255,0.7)' %>">
-          <%= player.score %> <span style="font-size:13px; color:rgba(255,255,255,0.3); font-weight:400;">pts</span>
+          <%= number_with_delimiter(player.score) %> <span style="font-size:13px; color:rgba(255,255,255,0.3); font-weight:400;">pts</span>
         </div>
       </div>
     <% end %>

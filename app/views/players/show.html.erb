@@ -168,16 +168,16 @@
             <% diff_label = g.result == "exact" ? "Exact!" : g.result == "lose" ? "+$#{number_with_delimiter(g.diff.abs)} over" : "-$#{number_with_delimiter(g.diff.abs)} under" %>
             <div style="font-size:13px; font-weight:600; color:<%= diff_color %>; text-align:right;">
               <%= diff_label %>
-              <% if g.points > 0 %>
-                <span style="color:rgba(255,255,255,0.3); font-weight:400;"> (<%= g.points %> pts)</span>
-              <% end %>
+              <div style="font-size:12px; font-weight:700; color:<%= g.points > 0 ? 'var(--pir-gold)' : 'rgba(255,255,255,0.3)' %>;">
+                <%= number_with_delimiter(g.points) %> pts
+              </div>
             </div>
           </div>
         <% end %>
 
         <div style="margin-top:24px; padding-top:24px; border-top:1px solid rgba(255,215,0,0.15); text-align:center;">
           <div class="sub-label">YOUR SCORE</div>
-          <div class="price-tag" style="font-size:56px; font-weight:800;"><%= @player.score %></div>
+          <div class="price-tag" style="font-size:56px; font-weight:800;"><%= number_with_delimiter(@player.score) %></div>
           <div style="font-size:15px; color:rgba(255,255,255,0.5); margin-top:4px;">
             total points across <%= @game.total_rounds %> rounds
           </div>
@@ -190,7 +190,7 @@
 
         <div style="margin-top:24px; padding:16px; background:rgba(255,215,0,0.08); border-radius:14px; border:1px solid rgba(255,215,0,0.2); text-align:center;">
           <p style="font-size:14px; color:rgba(255,255,255,0.6);">Drop your score in the chat! &#127881;</p>
-          <p style="font-size:18px; font-weight:700; color:white; margin-top:6px;"><%= @player.name %>: <%= @player.score %> pts &#127968;</p>
+          <p style="font-size:18px; font-weight:700; color:white; margin-top:6px;"><%= @player.name %>: <%= number_with_delimiter(@player.score) %> pts &#127968;</p>
         </div>
 
         <div style="margin-top:20px;">

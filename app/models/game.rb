@@ -44,6 +44,11 @@ class Game < ApplicationRecord
            .order(points: :desc, created_at: :asc)
   end
 
+  # Kahoot-style scoring: accuracy tiers + speed multiplier
+  # Over = 0 pts. Under = base points by accuracy tier, then speed multiplier.
+  # Creates big point spreads so there's always a clear winner.
+  SPEED_MULTIPLIERS = [ 1.5, 1.3, 1.2, 1.1 ].freeze  # 1st, 2nd, 3rd, 4th fastest
+
   def score_round!
     listing = current_listing
     actual_price = listing[:price]
@@ -52,7 +57,7 @@ class Game < ApplicationRecord
                            .includes(:player)
                            .order(:created_at)
 
-    # First pass: mark results and identify correct guesses
+    # First pass: mark results and identify correct (under/exact) guesses
     correct_guesses = []
     round_guesses.each do |guess|
       diff = guess.amount - actual_price
@@ -68,16 +73,25 @@ class Game < ApplicationRecord
       end
     end
 
-    # Second pass: compute speed ranks and points for correct guesses
+    # Second pass: accuracy tier base points + speed multiplier
     correct_guesses.each_with_index do |guess, rank|
-      base = 10
       pct_off = guess.diff.abs.to_f / actual_price * 100
-      accuracy_bonus = [ 5 - (pct_off / 5).floor, 0 ].max
-      speed = rank < 5 ? (5 - rank) : 0
+
+      # Accuracy tiers
+      base = if pct_off <= 5     then 1000   # within 5% or exact
+             elsif pct_off <= 10  then 750    # within 10%
+             elsif pct_off <= 25  then 500    # within 25%
+             else                      250    # under but far off
+             end
+
+      # Speed multiplier — fastest correct guessers get a bonus
+      multiplier = rank < SPEED_MULTIPLIERS.length ? SPEED_MULTIPLIERS[rank] : 1.0
+      total = (base * multiplier).round
+      speed_bonus_pts = total - base
 
       guess.assign_attributes(
-        speed_bonus: speed,
-        points: base + accuracy_bonus + speed
+        speed_bonus: speed_bonus_pts,
+        points: total
       )
     end
 
