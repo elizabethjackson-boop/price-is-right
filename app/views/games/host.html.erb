@@ -1,89 +1,78 @@
 <% content_for :title, "The Price Is Right — Host Screen" %>
 <%= turbo_stream_from @game.channel_name %>
 
-<style>
-  .btn { background:#f59e0b; color:#1e3a5f; border:none; border-radius:12px; padding:16px 32px; font-size:18px; font-weight:700; cursor:pointer; width:100%; letter-spacing:0.5px; transition:background 0.2s; }
-  .btn:hover { background:#fbbf24; }
-  .card { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:28px; }
-  .listing-img { width:100%; height:400px; object-fit:cover; display:block; border-radius:16px 16px 0 0; }
-  .specs { display:flex; gap:20px; font-size:20px; color:rgba(255,255,255,0.6); flex-wrap:wrap; }
-  .specs .sep { color:rgba(255,255,255,0.2); }
-  .progress-pip { width:40px; height:6px; border-radius:3px; transition:background 0.3s; }
-  .hidden { display:none; }
-  .price-reveal-anim { text-align:center; margin:32px 0; transition:all 0.7s cubic-bezier(0.34,1.56,0.64,1); }
-  .price-hidden { opacity:0; transform:scale(0.7); }
-  .price-visible { opacity:1; transform:scale(1); }
-</style>
-
-<div style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); color:#f59e0b; font-size:11px; font-weight:700; letter-spacing:2px; padding:6px 14px; border-radius:20px; position:fixed; top:16px; right:16px; z-index:100;">HOST SCREEN</div>
+<div class="host-badge">&#127775; HOST SCREEN</div>
 
 <div style="display:flex; flex-direction:column; align-items:center; padding:20px 16px; width:100%;">
 
   <% if @game.state == "waiting" %>
-    <%# ═══ WELCOME SCREEN ═══ %>
-    <div style="text-align:center; margin:80px 0 40px">
-      <div style="font-size:14px; letter-spacing:4px; color:#f59e0b; font-weight:600; margin-bottom:12px">CLEVER REAL ESTATE PRESENTS</div>
-      <h1 style="font-size:56px; font-weight:800; line-height:1.1; color:white">THE PRICE IS RIGHT</h1>
-      <p style="font-size:24px; color:rgba(255,255,255,0.5); margin-top:10px">Real Estate Edition</p>
+    <%# ═══ WELCOME / LOBBY SCREEN ═══ %>
+    <div style="text-align:center; margin:60px 0 32px" class="slide-up">
+      <div style="font-size:14px; letter-spacing:4px; color:var(--pir-gold); font-weight:600; margin-bottom:12px">&#9733; CLEVER REAL ESTATE PRESENTS &#9733;</div>
+      <h1 class="show-title neon-text" style="font-size:56px; font-weight:800; line-height:1.1; color:white">THE PRICE IS RIGHT</h1>
+      <p style="font-size:24px; color:rgba(255,255,255,0.5); margin-top:10px; font-weight:600;">Real Estate Edition &#127968;</p>
+      <div class="marquee-bar" style="width:300px; margin:20px auto 0;"></div>
     </div>
 
-    <div class="card" style="text-align:center; max-width:600px; width:100%; margin:0 auto">
-      <p style="font-size:18px; color:rgba(255,255,255,0.7); margin-bottom:4px">5 listings. Guess the price. Closest without going over wins.</p>
-      <p style="font-size:15px; color:rgba(255,255,255,0.4); margin-bottom:24px">Players — go to this URL and enter the code to join:</p>
+    <div class="bulb-border slide-up" style="text-align:center; max-width:600px; width:100%; margin:0 auto; animation-delay:0.2s;">
+      <div class="pir-card">
+        <p style="font-size:18px; color:rgba(255,255,255,0.7); margin-bottom:4px">5 listings. Guess the price. Closest without going over wins.</p>
+        <p style="font-size:15px; color:rgba(255,255,255,0.4); margin-bottom:24px">Players — go to this URL and enter the code to join:</p>
 
-      <div style="background:rgba(0,0,0,0.3); border-radius:12px; padding:20px; margin-bottom:24px;">
-        <div style="font-size:13px; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-bottom:8px">PLAYER JOIN LINK</div>
-        <% join_url = join_game_url(@game.code) %>
-        <a href="<%= join_url %>" target="_blank" style="font-size:18px; font-weight:700; color:#f59e0b; word-break:break-all; text-decoration:underline;"><%= join_url %></a>
-        <div style="font-size:48px; font-weight:800; color:#f59e0b; letter-spacing:8px; margin-top:16px"><%= @game.code %></div>
-        <p style="font-size:13px; color:rgba(255,255,255,0.3); margin-top:8px">Share this link — or players can go to the site and enter code <strong style="color:rgba(255,255,255,0.6);"><%= @game.code %></strong></p>
+        <div style="background:rgba(0,0,0,0.3); border-radius:16px; padding:24px; margin-bottom:24px; border:1px solid rgba(255,215,0,0.15);">
+          <div class="sub-label" style="margin-bottom:8px">PLAYER JOIN LINK</div>
+          <% join_url = join_game_url(@game.code) %>
+          <a href="<%= join_url %>" target="_blank" style="font-size:18px; font-weight:700; color:var(--pir-gold); word-break:break-all; text-decoration:underline;"><%= join_url %></a>
+          <div class="price-tag" style="font-size:52px; font-weight:800; letter-spacing:10px; margin-top:16px"><%= @game.code %></div>
+          <p style="font-size:13px; color:rgba(255,255,255,0.3); margin-top:8px">Share this link — or players can go to the site and enter code <strong style="color:rgba(255,255,255,0.6);"><%= @game.code %></strong></p>
+        </div>
+
+        <div id="player-list-area" data-controller="player-list-poll" data-player-list-poll-game-id-value="<%= @game.id %>">
+          <%= render "player_list", players: @players %>
+        </div>
+
+        <%= form_with url: start_game_path(@game), method: :post, style: "margin-top:24px" do %>
+          <%= submit_tag "START ROUND 1 &#9654;".html_safe, class: "pir-btn" %>
+        <% end %>
       </div>
-
-      <div id="player-list-area" data-controller="player-list-poll" data-player-list-poll-game-id-value="<%= @game.id %>">
-        <%= render "player_list", players: @players %>
-      </div>
-
-      <%= form_with url: start_game_path(@game), method: :post, style: "margin-top:24px" do %>
-        <%= submit_tag "START ROUND 1", class: "btn" %>
-      <% end %>
     </div>
 
   <% elsif @game.state == "playing" %>
     <%# ═══ LISTING SCREEN ═══ %>
     <% listing = @listing %>
-    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:800px; margin-bottom:16px">
-      <span style="font-size:14px; letter-spacing:3px; color:#f59e0b; font-weight:600">ROUND <%= @game.current_round + 1 %> OF <%= @game.total_rounds %></span>
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:800px; margin-bottom:16px" class="slide-up">
+      <span style="font-size:14px; letter-spacing:3px; color:var(--pir-gold); font-weight:600" class="star-decoration">ROUND <%= @game.current_round + 1 %> OF <%= @game.total_rounds %></span>
       <div style="display:flex; gap:8px;">
         <% @game.total_rounds.times do |i| %>
-          <div class="progress-pip" style="background:<%= i < @game.current_round ? '#f59e0b' : i == @game.current_round ? '#fbbf24' : 'rgba(255,255,255,0.15)' %>"></div>
+          <div class="pir-pip <%= i < @game.current_round ? 'pir-pip-done' : i == @game.current_round ? 'pir-pip-active' : 'pir-pip-future' %>"></div>
         <% end %>
       </div>
     </div>
 
-    <div class="card" style="padding:0; overflow:hidden; max-width:800px; width:100%;">
+    <div class="pir-card slide-up" style="padding:0; overflow:hidden; max-width:800px; width:100%; border-radius:20px; animation-delay:0.1s;">
       <img class="listing-img" src="<%= listing[:image] %>" alt="listing">
       <div style="padding:24px 32px">
-        <h2 style="font-size:32px; margin-bottom:8px; font-weight:700"><%= listing[:address] %></h2>
+        <h2 style="font-size:32px; margin-bottom:8px; font-weight:700; color:white;"><%= listing[:address] %></h2>
         <div class="specs">
-          <span><%= listing[:beds] %> Bed</span><span class="sep">|</span>
-          <span><%= listing[:baths] %> Bath</span><span class="sep">|</span>
-          <span><%= listing[:sqft] %> sqft</span><span class="sep">|</span>
-          <span>Built <%= listing[:year] %></span>
+          <span>&#128719; <%= listing[:beds] %> Bed</span><span class="sep">|</span>
+          <span>&#128705; <%= listing[:baths] %> Bath</span><span class="sep">|</span>
+          <span>&#128208; <%= listing[:sqft] %> sqft</span><span class="sep">|</span>
+          <span>&#128197; Built <%= listing[:year] %></span>
         </div>
         <p style="color:rgba(255,255,255,0.35); font-size:17px; margin-top:10px"><%= listing[:feature] %></p>
       </div>
     </div>
 
-    <div style="text-align:center; margin-top:20px; width:100%; max-width:800px;" data-controller="host-poll" data-host-poll-game-id-value="<%= @game.id %>">
-      <p style="font-size:16px; color:rgba(255,255,255,0.4); margin-bottom:16px">Players are submitting their guesses now...</p>
+    <div style="text-align:center; margin-top:24px; width:100%; max-width:800px;" data-controller="host-poll" data-host-poll-game-id-value="<%= @game.id %>">
+      <p style="font-size:16px; color:rgba(255,255,255,0.4); margin-bottom:16px">&#127918; Players are submitting their guesses now...</p>
 
-      <p id="guess-count-text" style="font-size:14px; color:rgba(255,255,255,0.3); margin-bottom:16px">
+      <p id="guess-count-text" style="font-size:15px; color:var(--pir-gold); margin-bottom:20px; font-weight:600;">
         <% guesses_in = @game.guesses.where(round: @game.current_round).count %>
-        <%= guesses_in %> / <%= @game.players.count %> guesses received
+        &#128172; <%= guesses_in %> / <%= @game.players.count %> guesses received
       </p>
 
       <%= form_with url: reveal_game_path(@game), method: :post do %>
-        <%= submit_tag "REVEAL THE PRICE", class: "btn", style: "max-width:400px; display:block; margin:0 auto;" %>
+        <%= submit_tag "REVEAL THE PRICE &#128176;".html_safe, class: "pir-btn", style: "max-width:400px; margin:0 auto;" %>
       <% end %>
     </div>
 
@@ -91,18 +80,18 @@
     <%# ═══ REVEAL SCREEN ═══ %>
     <% listing = @listing %>
     <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:800px; margin-bottom:16px">
-      <span style="font-size:14px; letter-spacing:3px; color:#f59e0b; font-weight:600">ROUND <%= @game.current_round + 1 %> OF <%= @game.total_rounds %></span>
+      <span style="font-size:14px; letter-spacing:3px; color:var(--pir-gold); font-weight:600" class="star-decoration">ROUND <%= @game.current_round + 1 %> OF <%= @game.total_rounds %></span>
       <div style="display:flex; gap:8px;">
         <% @game.total_rounds.times do |i| %>
-          <div class="progress-pip" style="background:<%= i <= @game.current_round ? '#f59e0b' : 'rgba(255,255,255,0.15)' %>"></div>
+          <div class="pir-pip <%= i <= @game.current_round ? 'pir-pip-done' : 'pir-pip-future' %>"></div>
         <% end %>
       </div>
     </div>
 
-    <div class="card" style="padding:0; overflow:hidden; max-width:800px; width:100%;">
+    <div class="pir-card" style="padding:0; overflow:hidden; max-width:800px; width:100%; border-radius:20px;">
       <img class="listing-img" src="<%= listing[:image] %>" alt="listing" style="height:280px;">
       <div style="padding:20px 32px">
-        <h2 style="font-size:28px; margin-bottom:6px; font-weight:700"><%= listing[:address] %></h2>
+        <h2 style="font-size:28px; margin-bottom:6px; font-weight:700; color:white;"><%= listing[:address] %></h2>
         <div class="specs" style="font-size:17px;">
           <span><%= listing[:beds] %> Bed</span><span class="sep">|</span>
           <span><%= listing[:baths] %> Bath</span><span class="sep">|</span>
@@ -111,9 +100,10 @@
       </div>
     </div>
 
-    <div class="price-reveal-anim price-hidden" id="host-price-reveal" style="text-align:center; margin:32px 0; width:100%; max-width:800px;">
-      <div style="font-size:13px; letter-spacing:3px; color:rgba(255,255,255,0.5); margin-bottom:6px">THE ACTUAL PRICE</div>
-      <div style="font-size:64px; font-weight:800; color:#f59e0b">$<%= number_with_delimiter(listing[:price]) %></div>
+    <%# Price Reveal with animation %>
+    <div id="host-price-reveal" style="text-align:center; margin:32px 0; width:100%; max-width:800px; opacity:0; transform:scale(0.3);">
+      <div class="sub-label" style="margin-bottom:8px">THE ACTUAL PRICE</div>
+      <div class="price-tag" style="font-size:72px; font-weight:800;">$<%= number_with_delimiter(listing[:price]) %></div>
     </div>
 
     <script>
@@ -121,8 +111,9 @@
         var el = document.getElementById("host-price-reveal");
         if (el) {
           setTimeout(function() {
-            el.classList.remove("price-hidden");
-            el.classList.add("price-visible");
+            el.style.transition = "all 0.7s cubic-bezier(0.34,1.56,0.64,1)";
+            el.style.opacity = "1";
+            el.style.transform = "scale(1)";
           }, 300);
         }
       })();
@@ -141,43 +132,70 @@
     </div>
 
     <div style="text-align:center; width:100%; max-width:800px;">
-      <p style="font-size:16px; color:rgba(255,255,255,0.4); margin-bottom:16px">Players can see their own results on their screen!</p>
+      <p style="font-size:16px; color:rgba(255,255,255,0.4); margin-bottom:16px">&#128241; Players can see their results on their screen!</p>
       <%= form_with url: advance_game_path(@game), method: :post do %>
-        <%= submit_tag(@game.last_round? ? "SEE FINAL RESULTS" : "NEXT LISTING →", class: "btn", style: "max-width:400px; display:block; margin:0 auto;") %>
+        <%= submit_tag(@game.last_round? ? "SEE FINAL RESULTS &#127942;" : "NEXT LISTING &#9654;", class: "pir-btn", style: "max-width:400px; margin:0 auto;") %>
       <% end %>
     </div>
 
   <% elsif @game.state == "finished" %>
-    <%# ═══ END SCREEN ═══ %>
-    <div style="text-align:center; margin:60px 0 32px; width:100%; max-width:800px;">
-      <div style="font-size:72px; margin-bottom:16px">&#127942;</div>
-      <h1 style="font-size:52px; font-weight:800; color:#f59e0b">GAME OVER</h1>
-      <p style="font-size:22px; color:rgba(255,255,255,0.5); margin-top:12px">Everyone drop your score in the chat!</p>
+    <%# ═══ END / GAME OVER SCREEN ═══ %>
+    <div style="text-align:center; margin:50px 0 32px; width:100%; max-width:800px;" class="slide-up">
+      <div style="font-size:80px; margin-bottom:12px">&#127942;</div>
+      <h1 class="show-title neon-text" style="font-size:56px; font-weight:800; color:var(--pir-gold)">GAME OVER!</h1>
+      <p style="font-size:22px; color:rgba(255,255,255,0.5); margin-top:12px">Everyone drop your score in the chat! &#127881;</p>
+      <div class="marquee-bar" style="width:300px; margin:20px auto 0;"></div>
     </div>
 
-    <div class="card" style="max-width:600px; width:100%; margin:0 auto;">
-      <h3 style="font-size:14px; margin-bottom:20px; letter-spacing:2px; color:rgba(255,255,255,0.4)">FINAL LEADERBOARD</h3>
+    <div class="bulb-border slide-up" style="max-width:600px; width:100%; margin:0 auto; animation-delay:0.2s;">
+      <div class="pir-card">
+        <div class="sub-label" style="margin-bottom:20px">&#127775; FINAL LEADERBOARD</div>
 
-      <%= turbo_frame_tag "leaderboard" do %>
-        <%= render "leaderboard", game: @game %>
-      <% end %>
+        <%= turbo_frame_tag "leaderboard" do %>
+          <%= render "leaderboard", game: @game %>
+        <% end %>
 
-      <h3 style="font-size:14px; margin:24px 0 16px; letter-spacing:2px; color:rgba(255,255,255,0.4)">THE 5 LISTINGS</h3>
-      <% Game::LISTINGS.each_with_index do |listing, i| %>
-        <div style="display:flex; align-items:center; gap:16px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.06)">
-          <div style="width:44px; height:44px; border-radius:50%; background:rgba(245,158,11,0.15); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; color:#f59e0b; flex-shrink:0;"><%= i + 1 %></div>
-          <div style="flex:1; text-align:left">
-            <div style="font-size:16px; font-weight:600; color:rgba(255,255,255,0.8)"><%= listing[:address].split(",")[0] %></div>
-            <div style="font-size:13px; color:rgba(255,255,255,0.35)"><%= listing[:beds] %> bed · <%= listing[:baths] %> bath · <%= listing[:sqft] %> sqft</div>
+        <div class="sub-label" style="margin:28px 0 16px;">THE 5 LISTINGS</div>
+        <% Game::LISTINGS.each_with_index do |listing, i| %>
+          <div style="display:flex; align-items:center; gap:16px; padding:14px 0; border-bottom:1px solid rgba(255,215,0,0.08)">
+            <div class="rank-badge rank-<%= i < 3 ? (i+1).to_s : 'other' %>"><%= i + 1 %></div>
+            <div style="flex:1; text-align:left">
+              <div style="font-size:16px; font-weight:600; color:rgba(255,255,255,0.85)"><%= listing[:address].split(",")[0] %></div>
+              <div style="font-size:13px; color:rgba(255,255,255,0.35)"><%= listing[:beds] %> bed · <%= listing[:baths] %> bath · <%= listing[:sqft] %> sqft</div>
+            </div>
+            <div class="price-tag" style="font-size:20px; font-weight:700;">$<%= number_with_delimiter(listing[:price]) %></div>
           </div>
-          <div style="font-size:20px; font-weight:700; color:#f59e0b">$<%= number_with_delimiter(listing[:price]) %></div>
-        </div>
-      <% end %>
+        <% end %>
 
-      <div style="margin-top:24px">
-        <%= link_to "PLAY AGAIN", new_game_path, style: "background:#f59e0b; color:#1e3a5f; border:none; border-radius:12px; padding:16px 32px; font-size:18px; font-weight:700; cursor:pointer; width:100%; letter-spacing:0.5px; display:block; text-align:center; text-decoration:none;" %>
+        <div style="margin-top:28px">
+          <%= link_to "PLAY AGAIN &#127922;".html_safe, new_game_path, class: "pir-btn" %>
+        </div>
       </div>
     </div>
+
+    <%# Confetti burst on game over %>
+    <script>
+      (function() {
+        var colors = ['#FFD700','#FF3333','#00E676','#FF8C00','#00E5FF','#FF4081','#E040FB'];
+        for (var i = 0; i < 60; i++) {
+          var piece = document.createElement('div');
+          piece.className = 'confetti-piece';
+          piece.style.left = Math.random() * 100 + 'vw';
+          piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          piece.style.animationDelay = (Math.random() * 2) + 's';
+          piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+          var size = 6 + Math.random() * 10;
+          piece.style.width = size + 'px';
+          piece.style.height = size + 'px';
+          piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+          document.body.appendChild(piece);
+        }
+        setTimeout(function() {
+          var pieces = document.querySelectorAll('.confetti-piece');
+          pieces.forEach(function(p) { p.remove(); });
+        }, 5000);
+      })();
+    </script>
   <% end %>
 
 </div>

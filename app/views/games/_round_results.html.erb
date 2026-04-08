@@ -1,19 +1,19 @@
 <% if round_results.any? %>
-  <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:16px; margin-top:12px;">
-    <div style="font-size:12px; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-bottom:12px">THIS ROUND'S RESULTS</div>
+  <div style="background:rgba(0,0,0,0.2); border-radius:14px; padding:18px; margin-top:12px; border:1px solid rgba(255,215,0,0.1);">
+    <div class="sub-label" style="margin-bottom:14px">&#127919; THIS ROUND'S RESULTS</div>
     <% round_results.each do |guess| %>
-      <div style="display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-        <div style="font-size:16px;">
+      <div style="display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid rgba(255,215,0,0.05);">
+        <div style="font-size:18px; width:24px; text-align:center;">
           <%= (guess.correct? ? (guess.speed_bonus > 0 ? "&#9889;" : "&#9989;") : "&#10060;").html_safe %>
         </div>
         <div style="flex:1; font-size:15px; font-weight:600; color:<%= guess.correct? ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.4)' %>;">
           <%= guess.player.name %>
           <% if guess.speed_bonus > 0 %>
-            <span style="font-size:11px; color:#f59e0b; margin-left:4px;">FAST +<%= guess.speed_bonus %></span>
+            <span style="font-size:11px; color:var(--pir-gold); margin-left:4px; font-weight:700;">FAST +<%= guess.speed_bonus %></span>
           <% end %>
         </div>
         <div style="text-align:right;">
-          <div style="font-size:14px; font-weight:600; color:<%= guess.correct? ? '#10b981' : '#ef4444' %>;">
+          <div style="font-size:14px; font-weight:600; color:<%= guess.correct? ? 'var(--pir-green)' : 'var(--pir-red)' %>;">
             $<%= number_with_delimiter(guess.amount) %>
           </div>
           <div style="font-size:11px; color:rgba(255,255,255,0.3);">

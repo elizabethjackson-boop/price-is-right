@@ -1,19 +1,5 @@
 <% content_for :title, "The Price Is Right — #{@player.name}" %>
 
-<style>
-  .btn { background:#f59e0b; color:#1e3a5f; border:none; border-radius:12px; padding:16px 32px; font-size:18px; font-weight:700; cursor:pointer; width:100%; letter-spacing:0.5px; transition:background 0.2s; }
-  .btn:hover { background:#fbbf24; }
-  .btn.disabled { background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.4); cursor:default; }
-  .card { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:28px; }
-  .input-field { background:rgba(255,255,255,0.1); border:2px solid rgba(255,255,255,0.2); border-radius:12px; padding:16px 20px; color:white; font-size:20px; font-weight:600; width:100%; outline:none; box-sizing:border-box; text-align:center; }
-  .input-field::placeholder { color:rgba(255,255,255,0.35); }
-  .input-field:focus { border-color:#f59e0b; }
-  .progress-pip { width:32px; height:5px; border-radius:3px; transition:background 0.3s; }
-  .price-reveal-anim { text-align:center; margin:24px 0; transition:all 0.7s cubic-bezier(0.34,1.56,0.64,1); }
-  .anim-hidden { opacity:0; transform:scale(0.7); }
-  .anim-visible { opacity:1; transform:scale(1); }
-</style>
-
 <%# Subscribe to game channel for real-time updates %>
 <%= turbo_stream_from "game_#{@game.id}" %>
 
@@ -32,61 +18,62 @@
 
   <% if @game.state == "waiting" %>
     <%# ═══ WAITING FOR GAME TO START ═══ %>
-    <div style="text-align:center; margin:80px 0 40px">
-      <div style="font-size:13px; letter-spacing:4px; color:#f59e0b; font-weight:600; margin-bottom:12px">CLEVER REAL ESTATE PRESENTS</div>
-      <h1 style="font-size:40px; font-weight:800; line-height:1.1; color:white">THE PRICE IS RIGHT</h1>
-      <p style="font-size:18px; color:rgba(255,255,255,0.5); margin-top:8px">Real Estate Edition</p>
+    <div style="text-align:center; margin:60px 0 32px" class="slide-up">
+      <div style="font-size:13px; letter-spacing:4px; color:var(--pir-gold); font-weight:600; margin-bottom:12px">&#9733; CLEVER REAL ESTATE PRESENTS &#9733;</div>
+      <h1 class="show-title neon-text" style="font-size:40px; font-weight:800; line-height:1.1; color:white">THE PRICE IS RIGHT</h1>
+      <p style="font-size:18px; color:rgba(255,255,255,0.5); margin-top:8px; font-weight:600;">Real Estate Edition &#127968;</p>
     </div>
 
     <div id="game-state-container">
-      <div class="card" style="text-align:center; max-width:500px; width:100%;">
-        <div style="font-size:36px; margin-bottom:12px">&#9201;</div>
-        <h2 style="font-size:20px; margin-bottom:8px; color:rgba(255,255,255,0.9)">Hey, <%= @player.name %>!</h2>
+      <div class="pir-card slide-up" style="text-align:center; max-width:500px; width:100%;">
+        <div style="font-size:48px; margin-bottom:12px;">&#128075;</div>
+        <h2 style="font-size:22px; margin-bottom:8px; color:white; font-weight:700;">Hey, <%= @player.name %>!</h2>
         <p style="font-size:16px; color:rgba(255,255,255,0.5)">You're in! Waiting for the host to start the game...</p>
-        <div style="margin-top:20px; background:rgba(245,158,11,0.08); border-radius:10px; padding:12px; border:1px solid rgba(245,158,11,0.2);">
-          <p style="font-size:14px; color:rgba(255,255,255,0.6)">Game Code: <strong style="color:#f59e0b; letter-spacing:2px;"><%= @game.code %></strong></p>
+        <div style="margin-top:20px; background:rgba(255,215,0,0.08); border-radius:12px; padding:14px; border:1px solid rgba(255,215,0,0.2);">
+          <p style="font-size:14px; color:rgba(255,255,255,0.6)">Game Code: <strong class="price-tag" style="letter-spacing:3px; font-size:18px;"><%= @game.code %></strong></p>
         </div>
+        <div class="marquee-bar" style="margin-top:20px;"></div>
       </div>
     </div>
 
   <% elsif @game.state == "playing" %>
     <%# ═══ GUESSING SCREEN ═══ %>
-    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:16px">
-      <span style="font-size:13px; letter-spacing:3px; color:#f59e0b; font-weight:600">ROUND <%= @game.current_round + 1 %> OF <%= @game.total_rounds %></span>
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:16px" class="slide-up">
+      <span style="font-size:13px; letter-spacing:3px; color:var(--pir-gold); font-weight:600">ROUND <%= @game.current_round + 1 %> OF <%= @game.total_rounds %></span>
       <div style="display:flex; gap:6px;">
         <% @game.total_rounds.times do |i| %>
-          <div class="progress-pip" style="background:<%= i < @game.current_round ? '#10b981' : i == @game.current_round ? '#fbbf24' : 'rgba(255,255,255,0.15)' %>"></div>
+          <div class="pir-pip" style="width:32px; height:5px; <%= i < @game.current_round ? 'background:var(--pir-green); box-shadow:0 0 6px rgba(0,230,118,0.4);' : i == @game.current_round ? 'background:var(--pir-gold); box-shadow:0 0 6px rgba(255,215,0,0.4);' : 'background:rgba(255,255,255,0.12);' %>"></div>
         <% end %>
       </div>
     </div>
 
     <div id="game-state-container">
-      <div class="card" style="text-align:center; width:100%;">
+      <div class="pir-card slide-up" style="text-align:center; width:100%;">
         <div style="font-size:48px; margin-bottom:12px">&#127968;</div>
-        <h2 style="font-size:22px; margin-bottom:6px; color:white;">Look at the host's screen!</h2>
+        <h2 style="font-size:22px; margin-bottom:6px; color:white; font-weight:700;">Look at the host's screen!</h2>
         <p style="font-size:15px; color:rgba(255,255,255,0.4); margin-bottom:24px;">Check out the listing, then enter your price guess below.</p>
 
         <% if @guess %>
           <%# Already guessed — show locked in state %>
-          <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); border-radius:12px; padding:20px;">
-            <div style="font-size:28px; margin-bottom:8px;">&#9989;</div>
-            <p style="font-size:17px; font-weight:600; color:rgba(255,255,255,0.8);">Guess locked in!</p>
-            <p style="font-size:24px; font-weight:700; color:#f59e0b; margin-top:4px;">$<%= number_with_delimiter(@guess.amount) %></p>
-            <p style="font-size:14px; color:rgba(255,255,255,0.4); margin-top:8px;">Wait for the host to reveal the price...</p>
+          <div style="background:rgba(0,230,118,0.08); border:2px solid rgba(0,230,118,0.3); border-radius:14px; padding:24px;">
+            <div style="font-size:36px; margin-bottom:8px;">&#128274;</div>
+            <p style="font-size:18px; font-weight:700; color:white;">Guess locked in!</p>
+            <p class="price-tag" style="font-size:28px; font-weight:800; margin-top:8px;">$<%= number_with_delimiter(@guess.amount) %></p>
+            <p style="font-size:14px; color:rgba(255,255,255,0.4); margin-top:10px;">Wait for the host to reveal the price... &#128064;</p>
           </div>
         <% else %>
           <%= form_with url: player_guess_path(@game.code, @player.token), method: :post, id: "guess-form" do |f| %>
             <div style="position:relative; margin-bottom:16px;">
-              <span style="position:absolute; left:20px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,0.4); font-size:32px; font-weight:700;">$</span>
+              <span style="position:absolute; left:20px; top:50%; transform:translateY(-50%); color:rgba(255,215,0,0.5); font-size:32px; font-weight:700;">$</span>
               <%= f.text_field :amount,
                   placeholder: "0",
-                  class: "input-field",
+                  class: "pir-input",
                   style: "font-size:32px; padding:20px 20px 20px 45px;",
                   id: "guess-input",
                   autocomplete: "off",
                   data: { action: "input->player-game#formatAmount keydown.enter->player-game#submitGuess" } %>
             </div>
-            <%= f.submit "LOCK IT IN", class: "btn" %>
+            <%= f.submit "LOCK IT IN &#128274;".html_safe, class: "pir-btn" %>
           <% end %>
         <% end %>
       </div>
@@ -98,28 +85,28 @@
     <% guess = @guess %>
 
     <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:16px">
-      <span style="font-size:13px; letter-spacing:3px; color:#f59e0b; font-weight:600">ROUND <%= @game.current_round + 1 %> OF <%= @game.total_rounds %></span>
+      <span style="font-size:13px; letter-spacing:3px; color:var(--pir-gold); font-weight:600">ROUND <%= @game.current_round + 1 %> OF <%= @game.total_rounds %></span>
       <div style="display:flex; gap:6px;">
         <% @game.total_rounds.times do |i| %>
           <% if i < @game.current_round %>
             <% prev_guess = @player.guesses.find_by(round: i) %>
-            <div class="progress-pip" style="background:<%= prev_guess&.result == 'lose' ? '#ef4444' : '#10b981' %>"></div>
+            <div class="pir-pip" style="width:32px; height:5px; background:<%= prev_guess&.result == 'lose' ? 'var(--pir-red)' : 'var(--pir-green)' %>; box-shadow:0 0 6px <%= prev_guess&.result == 'lose' ? 'rgba(255,51,51,0.4)' : 'rgba(0,230,118,0.4)' %>;"></div>
           <% elsif i == @game.current_round %>
-            <div class="progress-pip" style="background:#fbbf24"></div>
+            <div class="pir-pip" style="width:32px; height:5px; background:var(--pir-gold); box-shadow:0 0 6px rgba(255,215,0,0.4);"></div>
           <% else %>
-            <div class="progress-pip" style="background:rgba(255,255,255,0.15)"></div>
+            <div class="pir-pip" style="width:32px; height:5px; background:rgba(255,255,255,0.12);"></div>
           <% end %>
         <% end %>
       </div>
     </div>
 
     <div id="game-state-container">
-      <div class="card" style="text-align:center; width:100%;">
+      <div class="pir-card" style="text-align:center; width:100%;">
         <% actual_price = listing[:price] %>
 
-        <div class="price-reveal-anim anim-hidden" id="player-price-reveal">
-          <div style="font-size:12px; letter-spacing:3px; color:rgba(255,255,255,0.5); margin-bottom:4px;">THE ACTUAL PRICE</div>
-          <div style="font-size:48px; font-weight:800; color:#f59e0b;">$<%= number_with_delimiter(actual_price) %></div>
+        <div id="player-price-reveal" style="opacity:0; transform:scale(0.3);">
+          <div class="sub-label" style="margin-bottom:6px">THE ACTUAL PRICE</div>
+          <div class="price-tag" style="font-size:48px; font-weight:800;">$<%= number_with_delimiter(actual_price) %></div>
         </div>
 
         <script>
@@ -127,8 +114,9 @@
             var el = document.getElementById("player-price-reveal");
             if (el) {
               setTimeout(function() {
-                el.classList.remove("anim-hidden");
-                el.classList.add("anim-visible");
+                el.style.transition = "all 0.7s cubic-bezier(0.34,1.56,0.64,1)";
+                el.style.opacity = "1";
+                el.style.transform = "scale(1)";
               }, 100);
             }
           })();
@@ -155,30 +143,30 @@
 
   <% elsif @game.state == "finished" %>
     <%# ═══ FINAL SCORE SCREEN ═══ %>
-    <div style="text-align:center; margin:40px 0 28px; width:100%;">
-      <div style="font-size:56px; margin-bottom:12px;">&#127942;</div>
-      <h1 style="font-size:40px; font-weight:800; color:#f59e0b;">GAME OVER</h1>
+    <div style="text-align:center; margin:30px 0 24px; width:100%;" class="slide-up">
+      <div style="font-size:64px; margin-bottom:8px;">&#127942;</div>
+      <h1 class="show-title neon-text" style="font-size:40px; font-weight:800; color:var(--pir-gold)">GAME OVER!</h1>
       <p style="font-size:18px; color:rgba(255,255,255,0.6); margin-top:8px;"><%= @player.name %>'s Results</p>
     </div>
 
     <div id="game-state-container">
-      <div class="card" style="width:100%;">
-        <h3 style="font-size:14px; margin-bottom:16px; letter-spacing:2px; color:rgba(255,255,255,0.4);">YOUR RESULTS</h3>
+      <div class="pir-card slide-up" style="width:100%;">
+        <div class="sub-label" style="margin-bottom:16px">YOUR RESULTS</div>
 
         <% all_guesses = @player.guesses.order(:round) %>
         <% all_guesses.each do |g| %>
           <% listing = Game::LISTINGS[g.round] %>
-          <div style="display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
-            <div style="width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; background:<%= g.result == 'lose' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.2)' %>; color:<%= g.result == 'lose' ? '#ef4444' : '#10b981' %>; flex-shrink:0;">
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid rgba(255,215,0,0.06);">
+            <div class="rank-badge" style="width:36px; height:36px; font-size:15px; background:<%= g.result == 'lose' ? 'rgba(255,51,51,0.15)' : 'rgba(0,230,118,0.2)' %>; color:<%= g.result == 'lose' ? 'var(--pir-red)' : 'var(--pir-green)' %>;">
               <%= g.round + 1 %>
             </div>
             <div style="flex:1; text-align:left;">
               <div style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.8);">Round <%= g.round + 1 %></div>
               <div style="font-size:12px; color:rgba(255,255,255,0.35);">$<%= number_with_delimiter(g.amount) %> vs $<%= number_with_delimiter(listing[:price]) %></div>
             </div>
-            <% diff_color = g.result == "exact" ? "#f59e0b" : g.result == "lose" ? "#ef4444" : "#10b981" %>
+            <% diff_color = g.result == "exact" ? "var(--pir-gold)" : g.result == "lose" ? "var(--pir-red)" : "var(--pir-green)" %>
             <% diff_label = g.result == "exact" ? "Exact!" : g.result == "lose" ? "+$#{number_with_delimiter(g.diff.abs)} over" : "-$#{number_with_delimiter(g.diff.abs)} under" %>
-            <div style="font-size:13px; font-weight:600; color:<%= diff_color %>;">
+            <div style="font-size:13px; font-weight:600; color:<%= diff_color %>; text-align:right;">
               <%= diff_label %>
               <% if g.points > 0 %>
                 <span style="color:rgba(255,255,255,0.3); font-weight:400;"> (<%= g.points %> pts)</span>
@@ -187,26 +175,26 @@
           </div>
         <% end %>
 
-        <div style="margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1);">
-          <div style="font-size:14px; color:rgba(255,255,255,0.4); letter-spacing:1px;">YOUR SCORE</div>
-          <div style="font-size:48px; font-weight:800; color:#f59e0b;"><%= @player.score %></div>
+        <div style="margin-top:24px; padding-top:24px; border-top:1px solid rgba(255,215,0,0.15); text-align:center;">
+          <div class="sub-label">YOUR SCORE</div>
+          <div class="price-tag" style="font-size:56px; font-weight:800;"><%= @player.score %></div>
           <div style="font-size:15px; color:rgba(255,255,255,0.5); margin-top:4px;">
             total points across <%= @game.total_rounds %> rounds
           </div>
         </div>
 
         <%# Leaderboard %>
-        <div style="margin-top:16px;">
+        <div style="margin-top:20px;">
           <%= render "games/leaderboard", game: @game %>
         </div>
 
-        <div style="margin-top:24px; padding:16px; background:rgba(245,158,11,0.08); border-radius:10px; border:1px solid rgba(245,158,11,0.2);">
-          <p style="font-size:14px; color:rgba(255,255,255,0.6);">Drop your score in the chat!</p>
+        <div style="margin-top:24px; padding:16px; background:rgba(255,215,0,0.08); border-radius:14px; border:1px solid rgba(255,215,0,0.2); text-align:center;">
+          <p style="font-size:14px; color:rgba(255,255,255,0.6);">Drop your score in the chat! &#127881;</p>
           <p style="font-size:18px; font-weight:700; color:white; margin-top:6px;"><%= @player.name %>: <%= @player.score %> pts &#127968;</p>
         </div>
 
         <div style="margin-top:20px;">
-          <%= link_to "PLAY AGAIN", new_game_path, style: "background:#f59e0b; color:#1e3a5f; border:none; border-radius:12px; padding:16px 32px; font-size:18px; font-weight:700; cursor:pointer; width:100%; letter-spacing:0.5px; display:block; text-align:center; text-decoration:none;" %>
+          <%= link_to "PLAY AGAIN &#127922;".html_safe, new_game_path, class: "pir-btn" %>
         </div>
       </div>
     </div>

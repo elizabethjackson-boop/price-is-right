@@ -1,14 +1,14 @@
 <% top_players = game.leaderboard(limit: 5) %>
 <% if top_players.any? %>
-  <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:16px; margin-top:8px;">
-    <div style="font-size:12px; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-bottom:12px">TOP 5 LEADERBOARD</div>
+  <div style="background:rgba(0,0,0,0.2); border-radius:14px; padding:18px; margin-top:8px; border:1px solid rgba(255,215,0,0.1);">
+    <div class="sub-label" style="margin-bottom:14px">&#127775; TOP 5 LEADERBOARD</div>
     <% top_players.each_with_index do |player, i| %>
-      <div style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-        <div style="width:28px; height:28px; border-radius:50%; background:<%= i == 0 ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.08)' %>; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; color:<%= i == 0 ? '#f59e0b' : 'rgba(255,255,255,0.5)' %>; flex-shrink:0;">
-          <%= i + 1 %>
+      <div style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.06);">
+        <div class="rank-badge rank-<%= i < 3 ? (i+1).to_s : 'other' %>">
+          <%= i == 0 ? "&#128081;".html_safe : (i + 1).to_s %>
         </div>
         <div style="flex:1; font-size:16px; font-weight:600; color:rgba(255,255,255,0.85);"><%= player.name %></div>
-        <div style="font-size:18px; font-weight:700; color:<%= i == 0 ? '#f59e0b' : 'rgba(255,255,255,0.7)' %>">
+        <div style="font-size:18px; font-weight:700; color:<%= i == 0 ? 'var(--pir-gold)' : 'rgba(255,255,255,0.7)' %>">
           <%= player.score %> <span style="font-size:13px; color:rgba(255,255,255,0.3); font-weight:400;">pts</span>
         </div>
       </div>
