@@ -1,0 +1,22 @@
+databases:
+  - name: price-is-right-db
+    plan: free
+    databaseName: price_is_right
+    ipAllowList: []
+
+services:
+  - type: web
+    plan: free
+    name: price-is-right
+    runtime: ruby
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec rails server -b 0.0.0.0 -p $PORT"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: price-is-right-db
+          property: connectionString
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: RAILS_MASTER_KEY
+        sync: false
