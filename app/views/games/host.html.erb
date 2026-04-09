@@ -3,10 +3,14 @@
 
 <div class="host-badge">&#127775; HOST SCREEN</div>
 
-<%# ── Music Mute Toggle (audio lives in layout for persistence) ── %>
-<button id="music-toggle" class="music-btn music-playing" title="Mute / unmute music" onclick="event.stopPropagation(); if(window._bgmToggle) window._bgmToggle();">
-  <span id="music-icon">&#128266;</span>
-</button>
+<%# ── Music Controls (audio lives in layout for persistence) ── %>
+<div class="music-controls" id="music-controls">
+  <button id="music-toggle" class="music-btn music-playing" title="Mute / unmute music" onclick="event.stopPropagation(); if(window._bgmToggle) window._bgmToggle();">
+    <span id="music-icon">&#128266;</span>
+  </button>
+  <input type="range" id="music-volume" class="music-slider" min="0" max="100" value="35" title="Volume"
+         oninput="if(window._bgmSetVolume) window._bgmSetVolume(this.value / 100);">
+</div>
 
 <div style="display:flex; flex-direction:column; align-items:center; padding:20px 16px; width:100%;">
 

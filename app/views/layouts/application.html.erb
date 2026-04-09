@@ -76,17 +76,26 @@
           }
         }
 
-        // Update the mute button UI if it exists on the current page
+        // Persist volume level across Turbo navigations
+        if (typeof window._bgmVolume === 'undefined') window._bgmVolume = 0.35;
+
+        // Update the mute button + volume slider UI if they exist on the current page
         function updateMusicBtn() {
           var btn = document.getElementById('music-toggle');
           var icon = document.getElementById('music-icon');
-          if (!btn || !icon) return;
-          if (!window._bgmAudio || window._bgmMuted || window._bgmAudio.paused) {
-            icon.innerHTML = '\u{1F509}';
-            btn.classList.remove('music-playing');
-          } else {
-            icon.innerHTML = '\u{1F50A}';
-            btn.classList.add('music-playing');
+          var slider = document.getElementById('music-volume');
+          if (btn && icon) {
+            if (!window._bgmAudio || window._bgmMuted || window._bgmAudio.paused) {
+              icon.innerHTML = '\u{1F509}';
+              btn.classList.remove('music-playing');
+            } else {
+              icon.innerHTML = '\u{1F50A}';
+              btn.classList.add('music-playing');
+            }
+          }
+          // Sync slider to current volume
+          if (slider) {
+            slider.value = Math.round(window._bgmVolume * 100);
           }
         }
 
@@ -95,10 +104,27 @@
           ensureAudio();
           if (window._bgmMuted || window._bgmAudio.paused) {
             window._bgmMuted = false;
+            window._bgmAudio.volume = window._bgmVolume;
             window._bgmAudio.play().catch(function(){});
           } else {
             window._bgmMuted = true;
             window._bgmAudio.pause();
+          }
+          updateMusicBtn();
+        };
+
+        // Expose volume setter for the slider in host.html.erb
+        window._bgmSetVolume = function(val) {
+          window._bgmVolume = val;
+          ensureAudio();
+          window._bgmAudio.volume = val;
+          // If volume was at 0, treat as muted; if raised from 0, unmute
+          if (val === 0) {
+            window._bgmMuted = true;
+            window._bgmAudio.pause();
+          } else if (window._bgmMuted && val > 0) {
+            window._bgmMuted = false;
+            window._bgmAudio.play().catch(function(){});
           }
           updateMusicBtn();
         };

@@ -298,18 +298,28 @@ body {
 .specs { display: flex; gap: 16px; font-size: 18px; color: rgba(255,255,255,0.55); flex-wrap: wrap; }
 .specs .sep { color: rgba(255,215,0,0.3); }
 
-/* ── Music toggle button ── */
-.music-btn {
+/* ── Music controls (mute button + volume slider) ── */
+.music-controls {
   position: fixed;
   top: 16px;
   left: 16px;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 25px;
+  padding: 4px 12px 4px 4px;
+}
+.music-btn {
   background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,140,0,0.15));
   border: 1px solid rgba(255,215,0,0.3);
   color: var(--pir-gold);
-  font-size: 20px;
-  width: 44px;
-  height: 44px;
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -318,6 +328,7 @@ body {
   transition: all 0.2s ease;
   padding: 0;
   line-height: 1;
+  flex-shrink: 0;
 }
 .music-btn:hover {
   background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,140,0,0.3));
@@ -327,6 +338,45 @@ body {
   border-color: var(--pir-gold);
   box-shadow: 0 0 12px rgba(255,215,0,0.4);
   animation: pulse-glow 2s ease-in-out infinite;
+}
+/* Volume slider */
+.music-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 90px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.15);
+  outline: none;
+  cursor: pointer;
+}
+.music-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--pir-gold);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(255,215,0,0.4);
+  transition: transform 0.15s ease;
+}
+.music-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+.music-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--pir-gold);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 6px rgba(255,215,0,0.4);
+}
+.music-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.15);
 }
 
 /* ── Host badge ── */
