@@ -7,10 +7,27 @@
 <audio id="bgm" loop preload="auto">
   <source src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Electrodoodle.mp3" type="audio/mpeg">
 </audio>
-<button id="music-toggle" class="music-btn" onclick="toggleMusic()" title="Toggle music">
-  <span id="music-icon">&#128264;</span>
+<button id="music-toggle" class="music-btn music-playing" onclick="toggleMusic()" title="Mute / unmute music">
+  <span id="music-icon">&#128266;</span>
 </button>
 <script>
+  // Auto-play music on first user interaction (browsers block unprompted autoplay)
+  (function() {
+    var audio = document.getElementById('bgm');
+    var started = false;
+    audio.volume = 0.35;
+
+    function autoStart() {
+      if (started) return;
+      started = true;
+      audio.play().catch(function() {});
+      document.removeEventListener('click', autoStart);
+      document.removeEventListener('keydown', autoStart);
+    }
+    document.addEventListener('click', autoStart);
+    document.addEventListener('keydown', autoStart);
+  })();
+
   function toggleMusic() {
     var audio = document.getElementById('bgm');
     var icon = document.getElementById('music-icon');
@@ -22,7 +39,7 @@
       }).catch(function() {});
     } else {
       audio.pause();
-      icon.innerHTML = '&#128264;';
+      icon.innerHTML = '&#128263;';
       document.getElementById('music-toggle').classList.remove('music-playing');
     }
   }
