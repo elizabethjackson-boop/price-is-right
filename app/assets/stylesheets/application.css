@@ -310,6 +310,66 @@ body {
   opacity: 0.6;
 }
 
+/* ── Clever Deal Info Section ── */
+.deal-info-section {
+  border-top: 1px solid rgba(255,215,0,0.12);
+  background: rgba(0,0,0,0.15);
+  padding: 16px 32px 18px;
+}
+.deal-info-section.deal-info-compact {
+  padding: 12px 32px;
+  text-align: center;
+}
+.deal-info-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.deal-info-title {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.35);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.deal-label-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,140,0,0.2));
+  border: 1px solid rgba(255,215,0,0.35);
+  color: var(--pir-gold);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+.deal-info-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.deal-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.deal-info-key {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.deal-info-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+}
+.deal-flag-yes { color: var(--pir-green); }
+.deal-flag-no  { color: rgba(255,255,255,0.35); }
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .listing-img { height: 250px; }

@@ -16,7 +16,7 @@
 
     <div class="bulb-border slide-up" style="text-align:center; max-width:600px; width:100%; margin:0 auto; animation-delay:0.2s;">
       <div class="pir-card">
-        <p style="font-size:18px; color:rgba(255,255,255,0.7); margin-bottom:4px">5 listings. Guess the price. Closest without going over wins.</p>
+        <p style="font-size:18px; color:rgba(255,255,255,0.7); margin-bottom:4px"><%= Game::LISTINGS.length %> listings. Guess the price. Closest without going over wins.</p>
         <p style="font-size:15px; color:rgba(255,255,255,0.4); margin-bottom:24px">Players — go to this URL and enter the code to join:</p>
 
         <div style="background:rgba(0,0,0,0.3); border-radius:16px; padding:24px; margin-bottom:24px; border:1px solid rgba(255,215,0,0.15);">
@@ -54,7 +54,9 @@
         <% if listing[:image].present? && listing[:image] != "PHOTO_NEEDED" %>
           <img class="listing-img" src="<%= listing[:image] %>" alt="listing">
         <% end %>
-        <div style="padding:24px 32px">
+
+        <%# ── Property Details (what players use to guess) ── %>
+        <div style="padding:24px 32px 20px">
           <h2 style="font-size:32px; margin-bottom:8px; font-weight:700; color:white;"><%= listing[:address] %></h2>
           <div class="specs">
             <span>&#128719; <%= listing[:beds] %> Bed</span><span class="sep">|</span>
@@ -66,9 +68,38 @@
             <span>&#127968; <%= listing[:property_type] %></span><span class="sep">|</span>
             <span>&#128205; Lot: <%= listing[:lot] %></span>
           </div>
-          <% if listing[:feature].present? %>
-            <p style="color:rgba(255,255,255,0.35); font-size:17px; margin-top:10px"><%= listing[:feature] %></p>
-          <% end %>
+        </div>
+
+        <%# ── Clever Deal Info ── %>
+        <div class="deal-info-section">
+          <div class="deal-info-header">
+            <span class="deal-info-title">CLEVER DEAL INFO</span>
+            <span class="deal-label-badge"><%= listing[:label] %></span>
+          </div>
+          <div class="deal-info-grid">
+            <div class="deal-info-item">
+              <span class="deal-info-key">Product</span>
+              <span class="deal-info-value"><%= listing[:deal_product] %></span>
+            </div>
+            <div class="deal-info-item">
+              <span class="deal-info-key">Deal Type</span>
+              <span class="deal-info-value"><%= listing[:deal_type] %></span>
+            </div>
+            <% if listing[:vendor].present? %>
+              <div class="deal-info-item">
+                <span class="deal-info-key">Vendor</span>
+                <span class="deal-info-value"><%= listing[:vendor] %></span>
+              </div>
+            <% end %>
+            <div class="deal-info-item">
+              <span class="deal-info-key">BIF Mortgage</span>
+              <span class="deal-info-value deal-flag-<%= listing[:bif] ? 'yes' : 'no' %>"><%= listing[:bif] ? "Yes ✓" : "No" %></span>
+            </div>
+            <div class="deal-info-item">
+              <span class="deal-info-key">Closings</span>
+              <span class="deal-info-value deal-flag-<%= listing[:closings] ? 'yes' : 'no' %>"><%= listing[:closings] ? "Yes ✓" : "No" %></span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -103,13 +134,16 @@
         <% if listing[:image].present? && listing[:image] != "PHOTO_NEEDED" %>
           <img class="listing-img" src="<%= listing[:image] %>" alt="listing" style="height:280px;">
         <% end %>
-        <div style="padding:20px 32px">
+        <div style="padding:20px 32px 16px">
           <h2 style="font-size:28px; margin-bottom:6px; font-weight:700; color:white;"><%= listing[:address] %></h2>
           <div class="specs" style="font-size:17px;">
             <span><%= listing[:beds] %> Bed</span><span class="sep">|</span>
             <span><%= listing[:baths] %> Bath</span><span class="sep">|</span>
             <span><%= listing[:sqft] %> sqft</span>
           </div>
+        </div>
+        <div class="deal-info-section deal-info-compact">
+          <span class="deal-label-badge"><%= listing[:label] %></span>
         </div>
       </div>
     </div>
@@ -176,6 +210,7 @@
             <div style="flex:1; text-align:left">
               <div style="font-size:16px; font-weight:600; color:rgba(255,255,255,0.85)"><%= listing[:address].split(",")[0] %></div>
               <div style="font-size:13px; color:rgba(255,255,255,0.35)"><%= listing[:beds] %> bed · <%= listing[:baths] %> bath · <%= listing[:sqft] %> sqft</div>
+              <div style="margin-top:4px"><span class="deal-label-badge" style="font-size:10px; padding:2px 8px;"><%= listing[:label] %></span></div>
             </div>
             <div class="price-tag" style="font-size:20px; font-weight:700;">$<%= number_with_delimiter(listing[:price]) %></div>
           </div>
