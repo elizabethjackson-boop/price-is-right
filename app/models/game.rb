@@ -2,47 +2,11 @@ class Game < ApplicationRecord
   has_many :players, dependent: :destroy
   has_many :guesses, through: :players
 
-  # Real Clever Real Estate closed deals — sorted low to high price
+  # Real Clever Real Estate closed deals — shuffled so prices aren't predictable
   # images: array of paths served from public/listing-photos/
   # First image is the hero (large), rest are secondary (smaller, side by side)
   LISTINGS = [
-    {
-      images: ["/listing-photos/4444-1.webp"],
-      address: "4444 Carmanwood Dr, Flint, MI",
-      beds: 3, baths: 1, sqft: "1,587", price: 182_000, year: 1959,
-      lot: "10,454 sqft", property_type: "Single Family",
-      label: "Pro Buyer + BIF + Closings", deal_product: "Pro Buyer",
-      deal_type: "Buyer", vendor: "Best Interest Financial",
-      bif: true, closings: true
-    },
-    {
-      images: ["/listing-photos/1801-1.webp", "/listing-photos/1801-2.webp", "/listing-photos/1801-3.webp"],
-      address: "1801 Winston Dr, South Bend, IN",
-      beds: 4, baths: 2, sqft: "1,462", price: 212_000, year: 1961,
-      lot: "8,276 sqft", property_type: "Single Family",
-      label: "Listing Agent", deal_product: "D2C Seller",
-      deal_type: "Seller", vendor: nil,
-      bif: false, closings: false
-    },
-    {
-      images: ["/listing-photos/8407-1.webp", "/listing-photos/8407-2.webp", "/listing-photos/8407-3.webp"],
-      address: "8407 Bending Branch Ln, Cypress, TX",
-      beds: 4, baths: 4, sqft: "3,400", price: 440_000, year: 2004,
-      lot: "8,842 sqft", property_type: "Single Family",
-      label: "Listing Agent + Closings", deal_product: "D2C Seller",
-      deal_type: "Seller", vendor: nil,
-      bif: false, closings: true
-    },
-    {
-      images: ["/listing-photos/181-1.webp", "/listing-photos/181-2.webp", "/listing-photos/181-3.webp"],
-      address: "181 Austrian Dr, Blandon, PA",
-      beds: 4, baths: 3, sqft: "2,263", price: 474_990, year: 2025,
-      lot: "0.27 Acres", property_type: "Single Family",
-      label: "Pro Buyer (U.S. Bank)", deal_product: "Pro Buyer",
-      deal_type: "Buyer", vendor: "U.S. Bank",
-      bif: false, closings: false
-    },
-    {
+    {   # Round 1 — $546,900
       images: ["/listing-photos/13910-1.webp", "/listing-photos/13910-2.webp", "/listing-photos/13910-3.webp"],
       address: "13910 NE 101st St, Vancouver, WA",
       beds: 3, baths: 3, sqft: "1,952", price: 546_900, year: 2014,
@@ -51,25 +15,16 @@ class Game < ApplicationRecord
       deal_type: "Seller", vendor: nil,
       bif: false, closings: false
     },
-    {
-      images: ["/listing-photos/13828-1.webp", "/listing-photos/13828-2.webp", "/listing-photos/13828-3.webp"],
-      address: "13828 N Lobelia Way, Oro Valley, AZ",
-      beds: 2, baths: 2, sqft: "1,745", price: 640_000, year: 1995,
-      lot: "6,970 sqft", property_type: "Single Family",
-      label: "Listing Agent + Closings", deal_product: "D2C Seller",
-      deal_type: "Seller", vendor: nil,
-      bif: false, closings: true
+    {   # Round 2 — $182,000
+      images: ["/listing-photos/4444-1.webp"],
+      address: "4444 Carmanwood Dr, Flint, MI",
+      beds: 3, baths: 1, sqft: "1,587", price: 182_000, year: 1959,
+      lot: "10,454 sqft", property_type: "Single Family",
+      label: "Pro Buyer + BIF + Closings", deal_product: "Pro Buyer",
+      deal_type: "Buyer", vendor: "Best Interest Financial",
+      bif: true, closings: true
     },
-    {
-      images: ["/listing-photos/3219-1.webp", "/listing-photos/3219-2.webp", "/listing-photos/3219-3.webp"],
-      address: "3219 N Richmond St, Chicago, IL",
-      beds: 4, baths: 4, sqft: "1,920", price: 780_000, year: 1993,
-      lot: "3,149 sqft", property_type: "Single Family",
-      label: "Listing Agent", deal_product: "D2C Seller",
-      deal_type: "Seller", vendor: nil,
-      bif: false, closings: false
-    },
-    {
+    {   # Round 3 — $925,000
       images: ["/listing-photos/11442-1.webp"],
       address: "11442 Pinehurst Dr, Lakeside, CA",
       beds: 4, baths: 3, sqft: "2,219", price: 925_000, year: 1953,
@@ -78,7 +33,52 @@ class Game < ApplicationRecord
       deal_type: "Buyer", vendor: "U.S. Bank",
       bif: false, closings: false
     },
-    {
+    {   # Round 4 — $440,000
+      images: ["/listing-photos/8407-1.webp", "/listing-photos/8407-2.webp", "/listing-photos/8407-3.webp"],
+      address: "8407 Bending Branch Ln, Cypress, TX",
+      beds: 4, baths: 4, sqft: "3,400", price: 440_000, year: 2004,
+      lot: "8,842 sqft", property_type: "Single Family",
+      label: "Listing Agent + Closings", deal_product: "D2C Seller",
+      deal_type: "Seller", vendor: nil,
+      bif: false, closings: true
+    },
+    {   # Round 5 — $1,120,000
+      images: ["/listing-photos/5206-1.png"],
+      address: "5206 Teesdale Ave, Valley Village, CA",
+      beds: 3, baths: 2, sqft: "1,736", price: 1_120_000, year: 1948,
+      lot: "7,005 sqft", property_type: "Single Family",
+      label: "Offers (Agent) + Closings", deal_product: "Offers",
+      deal_type: "Seller", vendor: nil,
+      bif: false, closings: true
+    },
+    {   # Round 6 — $212,000
+      images: ["/listing-photos/1801-1.webp", "/listing-photos/1801-2.webp", "/listing-photos/1801-3.webp"],
+      address: "1801 Winston Dr, South Bend, IN",
+      beds: 4, baths: 2, sqft: "1,462", price: 212_000, year: 1961,
+      lot: "8,276 sqft", property_type: "Single Family",
+      label: "Listing Agent", deal_product: "D2C Seller",
+      deal_type: "Seller", vendor: nil,
+      bif: false, closings: false
+    },
+    {   # Round 7 — $780,000
+      images: ["/listing-photos/3219-1.webp", "/listing-photos/3219-2.webp", "/listing-photos/3219-3.webp"],
+      address: "3219 N Richmond St, Chicago, IL",
+      beds: 4, baths: 4, sqft: "1,920", price: 780_000, year: 1993,
+      lot: "3,149 sqft", property_type: "Single Family",
+      label: "Listing Agent", deal_product: "D2C Seller",
+      deal_type: "Seller", vendor: nil,
+      bif: false, closings: false
+    },
+    {   # Round 8 — $474,990
+      images: ["/listing-photos/181-1.webp", "/listing-photos/181-2.webp", "/listing-photos/181-3.webp"],
+      address: "181 Austrian Dr, Blandon, PA",
+      beds: 4, baths: 3, sqft: "2,263", price: 474_990, year: 2025,
+      lot: "0.27 Acres", property_type: "Single Family",
+      label: "Pro Buyer (U.S. Bank)", deal_product: "Pro Buyer",
+      deal_type: "Buyer", vendor: "U.S. Bank",
+      bif: false, closings: false
+    },
+    {   # Round 9 — $940,000
       images: ["/listing-photos/965-1.webp", "/listing-photos/965-2.webp", "/listing-photos/965-3.webp"],
       address: "965 Chatsworth Dr, Melbourne, FL",
       beds: 4, baths: 4, sqft: "3,894", price: 940_000, year: 2001,
@@ -87,12 +87,12 @@ class Game < ApplicationRecord
       deal_type: "Seller", vendor: nil,
       bif: false, closings: true
     },
-    {
-      images: ["/listing-photos/5206-1.png"],
-      address: "5206 Teesdale Ave, Valley Village, CA",
-      beds: 3, baths: 2, sqft: "1,736", price: 1_120_000, year: 1948,
-      lot: "7,005 sqft", property_type: "Single Family",
-      label: "Offers (Agent) + Closings", deal_product: "Offers",
+    {   # Round 10 — $640,000
+      images: ["/listing-photos/13828-1.webp", "/listing-photos/13828-2.webp", "/listing-photos/13828-3.webp"],
+      address: "13828 N Lobelia Way, Oro Valley, AZ",
+      beds: 2, baths: 2, sqft: "1,745", price: 640_000, year: 1995,
+      lot: "6,970 sqft", property_type: "Single Family",
+      label: "Listing Agent + Closings", deal_product: "D2C Seller",
       deal_type: "Seller", vendor: nil,
       bif: false, closings: true
     },
