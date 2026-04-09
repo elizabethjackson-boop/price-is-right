@@ -275,6 +275,37 @@ body {
 .specs { display: flex; gap: 16px; font-size: 18px; color: rgba(255,255,255,0.55); flex-wrap: wrap; }
 .specs .sep { color: rgba(255,215,0,0.3); }
 
+/* ── Music toggle button ── */
+.music-btn {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 100;
+  background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,140,0,0.15));
+  border: 1px solid rgba(255,215,0,0.3);
+  color: var(--pir-gold);
+  font-size: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+.music-btn:hover {
+  background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,140,0,0.3));
+  transform: scale(1.1);
+}
+.music-btn.music-playing {
+  border-color: var(--pir-gold);
+  box-shadow: 0 0 12px rgba(255,215,0,0.4);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
 /* ── Host badge ── */
 .host-badge {
   background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,140,0,0.2));

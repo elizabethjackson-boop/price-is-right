@@ -3,6 +3,31 @@
 
 <div class="host-badge">&#127775; HOST SCREEN</div>
 
+<%# ── Background Music (host only) ── %>
+<audio id="bgm" loop preload="auto">
+  <source src="https://assets.mixkit.co/music/849/849.mp3" type="audio/mpeg">
+</audio>
+<button id="music-toggle" class="music-btn" onclick="toggleMusic()" title="Toggle music">
+  <span id="music-icon">&#128264;</span>
+</button>
+<script>
+  function toggleMusic() {
+    var audio = document.getElementById('bgm');
+    var icon = document.getElementById('music-icon');
+    if (audio.paused) {
+      audio.volume = 0.35;
+      audio.play().then(function() {
+        icon.innerHTML = '&#128266;';
+        document.getElementById('music-toggle').classList.add('music-playing');
+      }).catch(function() {});
+    } else {
+      audio.pause();
+      icon.innerHTML = '&#128264;';
+      document.getElementById('music-toggle').classList.remove('music-playing');
+    }
+  }
+</script>
+
 <div style="display:flex; flex-direction:column; align-items:center; padding:20px 16px; width:100%;">
 
   <% if @game.state == "waiting" %>
