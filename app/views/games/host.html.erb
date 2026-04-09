@@ -118,8 +118,18 @@
 
     <div class="bulb-border slide-up" style="max-width:800px; width:100%; animation-delay:0.1s;">
       <div class="pir-card" style="padding:0; overflow:hidden; border-radius:16px;">
-        <% if listing[:image].present? && listing[:image] != "PHOTO_NEEDED" %>
-          <img class="listing-img" src="<%= listing[:image] %>" alt="listing">
+        <% photos = listing[:images] || [] %>
+        <% if photos.any? %>
+          <div class="listing-gallery">
+            <img class="listing-img-hero" src="<%= photos[0] %>" alt="listing photo 1">
+            <% if photos.length > 1 %>
+              <div class="listing-img-row">
+                <% photos[1..].each_with_index do |photo, i| %>
+                  <img class="listing-img-secondary" src="<%= photo %>" alt="listing photo <%= i + 2 %>">
+                <% end %>
+              </div>
+            <% end %>
+          </div>
         <% end %>
 
         <%# ── Property Details (what players use to guess) ── %>
@@ -198,8 +208,9 @@
 
     <div class="bulb-border" style="max-width:800px; width:100%;">
       <div class="pir-card" style="padding:0; overflow:hidden; border-radius:16px;">
-        <% if listing[:image].present? && listing[:image] != "PHOTO_NEEDED" %>
-          <img class="listing-img" src="<%= listing[:image] %>" alt="listing" style="height:280px;">
+        <% reveal_photos = listing[:images] || [] %>
+        <% if reveal_photos.any? %>
+          <img class="listing-img" src="<%= reveal_photos[0] %>" alt="listing" style="height:280px;">
         <% end %>
         <div style="padding:20px 32px 16px">
           <h2 style="font-size:28px; margin-bottom:6px; font-weight:700; color:white;"><%= listing[:address] %></h2>
