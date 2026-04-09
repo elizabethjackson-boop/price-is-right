@@ -7,42 +7,67 @@
 <audio id="bgm" loop preload="auto">
   <source src="https://assets.mixkit.co/music/787/787.mp3" type="audio/mpeg">
 </audio>
-<button id="music-toggle" class="music-btn music-playing" onclick="toggleMusic()" title="Mute / unmute music">
+<button id="music-toggle" class="music-btn music-playing" title="Mute / unmute music">
   <span id="music-icon">&#128266;</span>
 </button>
 <script>
-  // Auto-play music on first user interaction (browsers block unprompted autoplay)
+  // Music auto-play: starts on first user interaction, persists across Turbo navigations.
   (function() {
     var audio = document.getElementById('bgm');
-    var started = false;
+    var btn   = document.getElementById('music-toggle');
+    var icon  = document.getElementById('music-icon');
+    if (!audio || !btn) return;
+
     audio.volume = 0.35;
 
-    function autoStart() {
-      if (started) return;
-      started = true;
-      audio.play().catch(function() {});
-      document.removeEventListener('click', autoStart);
-      document.removeEventListener('keydown', autoStart);
-    }
-    document.addEventListener('click', autoStart);
-    document.addEventListener('keydown', autoStart);
-  })();
+    // Track muted state globally so it survives Turbo re-renders
+    if (typeof window._bgmMuted === 'undefined') window._bgmMuted = false;
 
-  function toggleMusic() {
-    var audio = document.getElementById('bgm');
-    var icon = document.getElementById('music-icon');
-    if (audio.paused) {
-      audio.volume = 0.35;
-      audio.play().then(function() {
+    function updateUI() {
+      if (audio.paused || window._bgmMuted) {
+        icon.innerHTML = '&#128263;';
+        btn.classList.remove('music-playing');
+      } else {
         icon.innerHTML = '&#128266;';
-        document.getElementById('music-toggle').classList.add('music-playing');
-      }).catch(function() {});
-    } else {
-      audio.pause();
-      icon.innerHTML = '&#128263;';
-      document.getElementById('music-toggle').classList.remove('music-playing');
+        btn.classList.add('music-playing');
+      }
     }
-  }
+
+    function startMusic() {
+      if (window._bgmMuted) return;
+      audio.volume = 0.35;
+      audio.play().then(updateUI).catch(function() {});
+    }
+
+    // Auto-start on first interaction (required by browsers)
+    function onInteraction() {
+      document.removeEventListener('click', onInteraction, true);
+      document.removeEventListener('keydown', onInteraction, true);
+      window._bgmInteracted = true;
+      startMusic();
+    }
+
+    if (!window._bgmInteracted) {
+      document.addEventListener('click', onInteraction, true);
+      document.addEventListener('keydown', onInteraction, true);
+    } else {
+      // Already interacted (Turbo navigation) — resume immediately
+      startMusic();
+    }
+
+    // Mute toggle button
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (audio.paused) {
+        window._bgmMuted = false;
+        startMusic();
+      } else {
+        window._bgmMuted = true;
+        audio.pause();
+        updateUI();
+      }
+    });
+  })();
 </script>
 
 <div style="display:flex; flex-direction:column; align-items:center; padding:20px 16px; width:100%;">
