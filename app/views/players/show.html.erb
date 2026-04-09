@@ -188,11 +188,6 @@
           <%= render "games/leaderboard", game: @game, top_players: @leaderboard %>
         </div>
 
-        <div style="margin-top:24px; padding:16px; background:rgba(255,215,0,0.08); border-radius:14px; border:1px solid rgba(255,215,0,0.2); text-align:center;">
-          <p style="font-size:14px; color:rgba(255,255,255,0.6);">Drop your score in the chat! &#127881;</p>
-          <p style="font-size:18px; font-weight:700; color:white; margin-top:6px;"><%= @player.name %>: <%= number_with_delimiter(@player.score) %> pts &#127968;</p>
-        </div>
-
         <div style="margin-top:20px;">
           <%= link_to "PLAY AGAIN &#127922;".html_safe, new_game_path, class: "pir-btn" %>
         </div>

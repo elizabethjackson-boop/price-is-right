@@ -24,24 +24,33 @@
     <!-- Animated marquee light bar at bottom -->
     <div class="marquee-bar" style="position:fixed; bottom:0; left:0; right:0; z-index:200;"></div>
 
-    <!-- Persistent background music — lives in layout so it survives Turbo navigations -->
+    <!-- Persistent background music — HOST ONLY, lives in layout so it survives Turbo navigations -->
     <script>
       // Create the audio element ONCE on the window and reuse it forever.
       // Turbo replaces the <body> contents but this script re-attaches the
       // existing audio element each time, so the song never restarts.
+      // Music only plays on host screens (detected by .host-badge element).
       (function() {
-        if (!window._bgmAudio) {
-          var a = new Audio('https://assets.mixkit.co/music/787/787.mp3');
-          a.loop = true;
-          a.volume = 0.35;
-          a.preload = 'auto';
-          window._bgmAudio = a;
-          window._bgmMuted = false;
-          window._bgmInteracted = false;
+        function isHostPage() {
+          return !!document.querySelector('.host-badge');
+        }
+
+        function ensureAudio() {
+          if (!window._bgmAudio) {
+            var a = new Audio('https://assets.mixkit.co/music/787/787.mp3');
+            a.loop = true;
+            a.volume = 0.35;
+            a.preload = 'auto';
+            window._bgmAudio = a;
+            window._bgmMuted = false;
+            window._bgmInteracted = false;
+          }
         }
 
         function tryPlay() {
+          if (!isHostPage()) return;
           if (window._bgmMuted) return;
+          ensureAudio();
           window._bgmAudio.play().catch(function(){});
         }
 
@@ -54,6 +63,10 @@
 
         // Re-bind listeners on every Turbo page load
         function bindInteraction() {
+          // Only set up music on host pages
+          if (!isHostPage()) return;
+          ensureAudio();
+
           if (!window._bgmInteracted) {
             document.addEventListener('click', onFirstInteraction, { once: true, capture: true });
             document.addEventListener('keydown', onFirstInteraction, { once: true, capture: true });
@@ -68,7 +81,7 @@
           var btn = document.getElementById('music-toggle');
           var icon = document.getElementById('music-icon');
           if (!btn || !icon) return;
-          if (window._bgmMuted || window._bgmAudio.paused) {
+          if (!window._bgmAudio || window._bgmMuted || window._bgmAudio.paused) {
             icon.innerHTML = '\u{1F509}';
             btn.classList.remove('music-playing');
           } else {
@@ -79,6 +92,7 @@
 
         // Expose helpers for the mute button in host.html.erb
         window._bgmToggle = function() {
+          ensureAudio();
           if (window._bgmMuted || window._bgmAudio.paused) {
             window._bgmMuted = false;
             window._bgmAudio.play().catch(function(){});
