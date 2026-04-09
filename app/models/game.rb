@@ -132,6 +132,15 @@ class Game < ApplicationRecord
            .order(points: :desc, created_at: :asc)
   end
 
+  # Top 5 closest guesses across all rounds (without going over).
+  # Returns guesses sorted by smallest |diff| (closest to actual price).
+  def best_guesses(limit: 5)
+    guesses.includes(:player)
+           .where(result: %w[win exact])
+           .order(Arel.sql("ABS(diff) ASC"))
+           .limit(limit)
+  end
+
   # Accuracy-only scoring — no speed bonus.
   # Over = 0 pts. Under = points by accuracy tier.
   # Max 1,000 per round, 10,000 across all 10 rounds.

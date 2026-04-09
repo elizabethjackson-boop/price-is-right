@@ -23,6 +23,7 @@ class GamesController < ApplicationController
     @players = @game.players.order(:created_at)
     @leaderboard = @game.leaderboard(limit: 5)
     @round_results = @game.round_results if @game.state == "revealing"
+    @best_guesses = @game.best_guesses(limit: 5) if @game.state == "finished"
   end
 
   # Lightweight JSON endpoint for polling — no view rendering, just game state

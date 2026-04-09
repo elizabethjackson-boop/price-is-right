@@ -3,72 +3,10 @@
 
 <div class="host-badge">&#127775; HOST SCREEN</div>
 
-<%# ── Background Music (host only) ── %>
-<audio id="bgm" loop preload="auto">
-  <source src="https://assets.mixkit.co/music/787/787.mp3" type="audio/mpeg">
-</audio>
-<button id="music-toggle" class="music-btn music-playing" title="Mute / unmute music">
+<%# ── Music Mute Toggle (audio lives in layout for persistence) ── %>
+<button id="music-toggle" class="music-btn music-playing" title="Mute / unmute music" onclick="event.stopPropagation(); if(window._bgmToggle) window._bgmToggle();">
   <span id="music-icon">&#128266;</span>
 </button>
-<script>
-  // Music auto-play: starts on first user interaction, persists across Turbo navigations.
-  (function() {
-    var audio = document.getElementById('bgm');
-    var btn   = document.getElementById('music-toggle');
-    var icon  = document.getElementById('music-icon');
-    if (!audio || !btn) return;
-
-    audio.volume = 0.35;
-
-    // Track muted state globally so it survives Turbo re-renders
-    if (typeof window._bgmMuted === 'undefined') window._bgmMuted = false;
-
-    function updateUI() {
-      if (audio.paused || window._bgmMuted) {
-        icon.innerHTML = '&#128263;';
-        btn.classList.remove('music-playing');
-      } else {
-        icon.innerHTML = '&#128266;';
-        btn.classList.add('music-playing');
-      }
-    }
-
-    function startMusic() {
-      if (window._bgmMuted) return;
-      audio.volume = 0.35;
-      audio.play().then(updateUI).catch(function() {});
-    }
-
-    // Auto-start on first interaction (required by browsers)
-    function onInteraction() {
-      document.removeEventListener('click', onInteraction, true);
-      document.removeEventListener('keydown', onInteraction, true);
-      window._bgmInteracted = true;
-      startMusic();
-    }
-
-    if (!window._bgmInteracted) {
-      document.addEventListener('click', onInteraction, true);
-      document.addEventListener('keydown', onInteraction, true);
-    } else {
-      // Already interacted (Turbo navigation) — resume immediately
-      startMusic();
-    }
-
-    // Mute toggle button
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      if (audio.paused) {
-        window._bgmMuted = false;
-        startMusic();
-      } else {
-        window._bgmMuted = true;
-        audio.pause();
-        updateUI();
-      }
-    });
-  })();
-</script>
 
 <div style="display:flex; flex-direction:column; align-items:center; padding:20px 16px; width:100%;">
 
@@ -245,16 +183,16 @@
       })();
     </script>
 
-    <%# Round Results %>
-    <div style="max-width:800px; width:100%; margin-bottom:12px;">
-      <%= render "round_results", round_results: @round_results %>
-    </div>
-
-    <%# Leaderboard %>
+    <%# Leaderboard (shown first — with 100 players, round results are long) %>
     <div style="max-width:800px; width:100%; margin-bottom:20px;">
       <%= turbo_frame_tag "leaderboard" do %>
         <%= render "leaderboard", game: @game, top_players: @leaderboard %>
       <% end %>
+    </div>
+
+    <%# Round Results %>
+    <div style="max-width:800px; width:100%; margin-bottom:12px;">
+      <%= render "round_results", round_results: @round_results %>
     </div>
 
     <div style="text-align:center; width:100%; max-width:800px;">
@@ -279,6 +217,31 @@
 
         <%= turbo_frame_tag "leaderboard" do %>
           <%= render "leaderboard", game: @game, top_players: @leaderboard %>
+        <% end %>
+
+        <%# ── Top 5 Best Guesses ── %>
+        <% if @best_guesses.present? %>
+          <div class="sub-label" style="margin:28px 0 16px;">&#127919; TOP 5 CLOSEST GUESSES</div>
+          <% @best_guesses.each_with_index do |guess, i| %>
+            <% listing = Game::LISTINGS[guess.round] %>
+            <div style="display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid rgba(255,215,0,0.08)">
+              <div class="rank-badge rank-<%= i < 3 ? (i+1).to_s : 'other' %>"><%= i + 1 %></div>
+              <div style="flex:1; text-align:left">
+                <div style="font-size:16px; font-weight:600; color:rgba(255,255,255,0.85)"><%= guess.player.name %></div>
+                <div style="font-size:13px; color:rgba(255,255,255,0.35)"><%= listing[:address].split(",")[0] %> — Round <%= guess.round + 1 %></div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:18px; font-weight:700; color:var(--pir-green)">$<%= number_with_delimiter(guess.amount) %></div>
+                <div style="font-size:12px; color:rgba(255,255,255,0.35)">
+                  <% if guess.diff == 0 %>
+                    &#128175; EXACT!
+                  <% else %>
+                    $<%= number_with_delimiter(guess.diff.abs) %> under
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
         <% end %>
 
         <div class="sub-label" style="margin:28px 0 16px;">ALL <%= Game::LISTINGS.length %> LISTINGS</div>

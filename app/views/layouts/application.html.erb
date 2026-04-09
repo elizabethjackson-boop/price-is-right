@@ -24,6 +24,79 @@
     <!-- Animated marquee light bar at bottom -->
     <div class="marquee-bar" style="position:fixed; bottom:0; left:0; right:0; z-index:200;"></div>
 
+    <!-- Persistent background music — lives in layout so it survives Turbo navigations -->
+    <script>
+      // Create the audio element ONCE on the window and reuse it forever.
+      // Turbo replaces the <body> contents but this script re-attaches the
+      // existing audio element each time, so the song never restarts.
+      (function() {
+        if (!window._bgmAudio) {
+          var a = new Audio('https://assets.mixkit.co/music/787/787.mp3');
+          a.loop = true;
+          a.volume = 0.35;
+          a.preload = 'auto';
+          window._bgmAudio = a;
+          window._bgmMuted = false;
+          window._bgmInteracted = false;
+        }
+
+        function tryPlay() {
+          if (window._bgmMuted) return;
+          window._bgmAudio.play().catch(function(){});
+        }
+
+        // First-interaction auto-start (browser autoplay policy)
+        function onFirstInteraction() {
+          if (window._bgmInteracted) return;
+          window._bgmInteracted = true;
+          tryPlay();
+        }
+
+        // Re-bind listeners on every Turbo page load
+        function bindInteraction() {
+          if (!window._bgmInteracted) {
+            document.addEventListener('click', onFirstInteraction, { once: true, capture: true });
+            document.addEventListener('keydown', onFirstInteraction, { once: true, capture: true });
+          } else {
+            // Already interacted — make sure it's still playing (Turbo nav)
+            tryPlay();
+          }
+        }
+
+        // Update the mute button UI if it exists on the current page
+        function updateMusicBtn() {
+          var btn = document.getElementById('music-toggle');
+          var icon = document.getElementById('music-icon');
+          if (!btn || !icon) return;
+          if (window._bgmMuted || window._bgmAudio.paused) {
+            icon.innerHTML = '\u{1F509}';
+            btn.classList.remove('music-playing');
+          } else {
+            icon.innerHTML = '\u{1F50A}';
+            btn.classList.add('music-playing');
+          }
+        }
+
+        // Expose helpers for the mute button in host.html.erb
+        window._bgmToggle = function() {
+          if (window._bgmMuted || window._bgmAudio.paused) {
+            window._bgmMuted = false;
+            window._bgmAudio.play().catch(function(){});
+          } else {
+            window._bgmMuted = true;
+            window._bgmAudio.pause();
+          }
+          updateMusicBtn();
+        };
+
+        // Run on every Turbo navigation + initial load
+        document.addEventListener('turbo:load', function() { bindInteraction(); setTimeout(updateMusicBtn, 50); });
+        document.addEventListener('DOMContentLoaded', function() { bindInteraction(); setTimeout(updateMusicBtn, 50); });
+        // Also run immediately in case this script fires after DOMContentLoaded
+        bindInteraction();
+      })();
+    </script>
+
     <!-- Generate light bulb dots around .bulb-border elements -->
     <script>
       document.addEventListener("turbo:load", initBulbs);
